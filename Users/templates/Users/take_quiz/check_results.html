@@ -1,0 +1,68 @@
+{% extends 'Users/parent.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block content %}
+
+
+{% include 'Users/navbars/navbar_user.html' %}
+
+
+
+<section class="user-main-container p-5">
+    <div class="mx-3 mt-4">
+        <div class="profile-user">
+            <h2 style="font-size: 45px;  margin-bottom: -15px;">Quizzes</h2>
+            <form class="d-flex" role="search">
+                <input class="form-control me-2" type="search" placeholder="Search quiz" aria-label="Search"
+                    style="width:450px;">
+                <button class="btn btn-outline-success ms-2" type="submit">Search</button>
+            </form>
+        </div>
+        <hr class="custom-border-bottom">
+    </div>
+    <!--Quiz -->
+    <div class="d-flex justify-content-start ms-5 flex-wrap text-center">
+        {% for quiz in quizzes %}
+            {% if quiz.is_available %}
+                <div class="card ms-3 " data-bs-theme="dark" style="width: 280px; height: 280px;">
+                    <div class="card-header w-100 d-flex justify-content-between">
+                        <small class="text-body-secondary">Time: {{ quiz.time_limit|convert_duration }}</small>
+                        <small class="text-body-secondary">{{ quiz.updated_at|timesince|days_since }} </small>
+                    </div>
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                        <h3 class="card-title mt-3 fw-bolder"
+                            style="font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif">
+                            {{ quiz.name }}</h3>
+                        {% if quiz.end_time %}
+                        <p class=" fs-5 fw-bold text-center " style="font-size: 20px;">
+                            Last Date: {{ quiz.end_time|date:"j M Y" }}
+                        </p>
+                        {% endif %}
+                        <a href="{% url 'quiz_result' quiz_id=quiz.quiz_id %}" class="btn btn-outline-warning ms-2">
+                            View
+                        </a>
+                    </div>
+                    <div class="card-footer w-100 d-flex justify-content-between">
+                        <small class="text-body-secondary">
+                            {% with quiz.attempts.all|get_by_user:request.user as user_attempts %}
+                            {% if quiz.end_time and not user_attempts %}
+                                <small class="text-body-secondary">Due</small>
+                            {% elif user_attempts %}
+                                <small class="text-body-secondary"> {{ user_attempts.completed_at|date:"j M Y" }}</small>
+                            {% endif %}
+                            {% endwith %}    
+                        </small>
+                        <small class="text-body-secondary">
+                            {{ quiz.created_by.title }} {{ quiz.created_by.first_name }} {{ quiz.created_by.last_name }}
+                        </small>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</section>
+
+
+
+{% endblock %}

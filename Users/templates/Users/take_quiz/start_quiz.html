@@ -1,0 +1,176 @@
+{% extends 'Users/parent.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block content %}
+
+
+
+
+
+<div class="quiz-container">
+    <div class="d-flex justify-content-between ">
+        <p class="brand-name fs-2 m-3">Gurukul</p>
+        <h3 class="m-3 fs-1" style="font-family: Klavika;">{{ quiz.name }}</h1>
+            {% if time_limit_seconds %}
+            <div id="timer" data-time-remaining="{{ time_limit_seconds|default:0 }}">
+                <p class="fs-2 m-3"><span id="time-remaining"></span></p>
+            </div>
+            {% endif %}
+    </div>
+    <hr class="custom-border-bottom m-0">
+    <div class="d-flex justify-content-between align-items-center w-100 " style="font-family: Klavika;">
+        <p class="fs-3 text-warning mb-0 mx-auto text-center">Make sure to save your response before clicking on submit
+            anytime during the quiz. DO NOT RELOAD THE PAGE</p>
+        <form method="post">
+            <button type="button" class="btn btn-success text-light m-3 px-3 py-2 fs-5" name="submit_quiz"
+                data-bs-toggle="modal" data-bs-target="#completion_modal">
+                Submit Quiz
+            </button>
+        </form>
+    </div>
+
+    <div class="d-flex justify-content-between py-5 px-3 fs-3 " style="font-family: Klavika;">
+        <!--class changes the option-->
+        <div class="d-flex flex-column justify-content-between ms-5">
+            <form method="POST" id="quiz-form">
+                {% csrf_token %}
+                <h3 class="fs-3">Q{{ current_question_index |add:1}}</h3> <!--For Display-->
+                {% for field in form %}
+                <div class="mb-3 d-flex flex-column">
+                    <!--{{ form }} (which calls form.as_p() by default which appends colon after question_text-->
+                    <label for="{{ field.id_for_label }}" class="form-label fs-2 ">{{ field.label }}</label>
+                    <!--class only applies to question-->
+                    {{ field }}
+                </div>
+                {% endfor %}
+                <div class="d-flex justify-content-evenly">
+                    <button type="submit" name="previous_question"
+                        class="btn btn-warning  btn-lg m-3 px-3 py-2 {% if current_question_index <= 0 %}disabled{% endif %}">
+                        Previous Question
+                    </button>
+                    <button type="submit" name="clear_response" class="btn btn-lg btn-danger m-3 px-3 py-2">Clear
+                        Response/Review</button>
+                    <button type="submit" class="btn btn-lg btn-success m-3  px-3 py-2" name="next_question">
+                        Save{% if not current_question_index == total_questions|length|add:'-1' %} and Next{% endif %}
+                    </button>
+                    <button type="submit" class="btn btn-lg btn-secondary m-3  px-3 py-2" name="marked_for_review">
+                        Mark for Review {% if not current_question_index == total_questions|length|add:'-1' %} and
+                        Next{% endif %}
+                    </button>
+
+                </div>
+            </form>
+        </div>
+
+        <!-- Right Section for Question Navigation -->
+        <div class="d-flex flex-column align-items-center p-3 inside-block m-0  me-5"
+            style="width: 500px; height: 500px;">
+            <h4 class="mb-1 fs-3">Questions</h4>
+            <div class="d-flex flex-wrap">
+                {% for question_id in question_order %}
+                {% with question_status|dict_key:question_id as status %}
+                <button class="btn m-2 question-btn btn-lg 
+                            {% if question_id == current_question.question_id %}btn-outline-light disabled
+                            {% elif status == 'answered' %}btn-success
+                            {% elif status == 'marked_for_review_unanswered' %}btn-warning text-danger
+                            {% elif status == 'marked_for_review_answered' %}btn-warning text-success
+                            {% elif status == 'unanswered' %}btn-outline-danger
+                            {% else %}btn-outline-primary{% endif %}" data-question-index="{{ forloop.counter0 }}">
+                    {{ forloop.counter }} <!-- Display question number -->
+                </button>
+                {% endwith %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+
+    <form method="post">
+        {% csrf_token %}
+        <!-- Modal -->
+        <div class="modal fade" id="completion_modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+            aria-labelledby="staticBackdropLabel" aria-hidden="true" data-bs-theme="dark">
+            <div class="modal-dialog ">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="staticBackdropLabel">Submit Quiz</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to submit your quiz?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, Continue</button>
+                        <button type="submit" class="btn btn-primary" name="confirm_submit">Yes, Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const timerElement = document.getElementById("time-remaining");
+        const timerContainer = document.getElementById("timer");
+        let timeRemaining = parseInt(timerContainer.getAttribute("data-time-remaining"), 10);
+        const quizForm = document.getElementById("quiz-form");
+
+        function updateTimer() {
+            if (timeRemaining <= 0) {
+                clearInterval(timer);
+                autoSubmitQuiz();
+            } else {
+                const minutes = Math.floor(timeRemaining / 60);
+                const seconds = timeRemaining % 60;
+                timerElement.textContent = `${minutes}:${seconds < 10 ? "0" + seconds : seconds}`;
+                timeRemaining--;
+                setTimeout(updateTimer, 1000);
+            }
+        }
+
+        if (timeRemaining > 0) updateTimer();
+        else timerElement.textContent = "Time's up!";
+
+        function autoSubmitQuiz() {
+            let csrfToken = document.querySelector("[name=csrfmiddlewaretoken]").value;
+
+            let input = document.createElement("input");
+            input.type = "hidden";
+            input.name = "confirm_submit";
+            input.value = "1";
+            quizForm.appendChild(input);
+
+            let formData = new FormData(quizForm);
+            fetch(quizForm.action, {
+                method: "POST",
+                body: formData,
+                headers: { "X-CSRFToken": csrfToken }
+            }).then(response => {
+                if (response.ok) {
+                    window.location.href = response.url;
+                }
+            }).catch(error => console.error("Auto-submit failed:", error));
+        }
+
+        // Question Navigation Script
+        document.querySelectorAll(".question-btn").forEach(button => {
+            button.addEventListener("click", function () {
+                let questionIndex = this.getAttribute("data-question-index");
+                let form = document.getElementById("quiz-form");
+                let input = document.createElement("input");
+                input.type = "hidden";
+                input.name = "jump_to_question";
+                input.value = questionIndex;
+                form.appendChild(input);
+                form.submit();
+            });
+        });
+    });
+
+</script>
+
+{% endblock %}

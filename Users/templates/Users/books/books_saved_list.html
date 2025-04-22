@@ -1,0 +1,62 @@
+<!-- if the user is the one who created it add option to remove it -->
+<!-- will contain list of books based on perooid -->
+
+
+{% extends 'Users/parent.html' %}
+{% load static %}
+<!--html Parent template extended-->
+
+
+<!--block where the content will sit in the main file
+ is inside block content and endblock same as in child-->
+{% block content %}
+
+
+{% include 'Users/navbars/navbar_user.html' %}
+<!-- Books Section -->
+<section class="user-hp p-5">
+    <div class="px-5 mt-4">
+        <div style="display: flex; justify-content: space-between;">
+            <h2 style="font-size: 45px;  margin-bottom: -15px;">Your Saved Books</h2>
+            <form class="d-flex" role="search">
+                <input class="form-control me-2" type="search" placeholder="Search book" aria-label="Search"
+                    style="width:450px;">
+                <button class="btn btn-outline-success ms-2" type="submit">Search</button>
+            </form>
+        </div>
+        <hr class="custom-border-bottom mb-2">
+    </div>
+    <div class="d-flex flex-wrap ms-5 mt-4">
+        {% for book in books %}
+        <div class="card m-1 p-2 mb-3" style="width: 360px;" data-bs-theme="dark">
+            <img src="{{ book.cover_image.url }}" class="card-img-top" alt="Book Cover" width="250"
+                height="400">
+            <div class="card-body">
+                <h5 class="card-title text-center fs-2" style="font-family: 'Klavika'; ">
+                    {{ book.name }}
+                </h5>
+               <div class="card-text text-center ">
+                     <small>{{ book.publisher|upper}}, {{ book.edition|upper}} EDITION</small>
+                </div>
+            </div>
+            <ul class="list-group list-group-flush fs-6"
+                style=" font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;">
+                <li class="list-group-item">Author: {{ book.author }}</li>
+                <li class="list-group-item">Owner: {{ book.created_by.title }}
+                    {{book.created_by.first_name }} {{ book.created_by.last_name }}</li>
+                <li class="list-group-item">ISBN: {{ book.isbn }} <span class="tab"></span>
+                    Pages: {{ book.num_pages }}</li>
+                <li class="list-group-item">Genre: {{ book.genre }}, {{ book.language }}
+                </li>
+            </ul>
+            <div class="card-body text-center">
+                <a href="{{ book.file.url }}" target="_blank" class="btn btn-primary btn-block mt-1"
+                    >
+                    View Book
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

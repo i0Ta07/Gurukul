@@ -1,0 +1,105 @@
+{% extends 'Users/parent.html' %}
+{% load static %}
+{% load custom_filters %}
+<!--html Parent template extended-->
+
+
+<!--block where the content will sit in the main file
+is inside block content and endblock same as in child-->
+{% block content %}
+
+
+{% include 'Users/navbars/navbar_user.html' %}
+<!-- Main Content -->
+<section class="user-main-container p-5">
+    <div class="mx-4 mt-4">
+        <div class="profile-user" style="display: flex; justify-content: space-between;">
+            <h2 style="font-size: 45px;  margin-bottom: -15px;">Your Created Notes</h2>
+            <div class="d-flex">
+                <form class="d-flex" role="search">
+                    <input class="form-control me-2" type="search" placeholder="Search notes" aria-label="Search"
+                        style="width:450px;">
+                    <button class="btn btn-outline-success ms-2" type="submit">Search</button>
+                </form>
+            </div>
+        </div>
+        <hr class="custom-border-bottom">
+    </div>
+    <!-- Notes Section -->
+    <div class="notes">
+        <section class="container d-flex justify-content-start m-2 flex-wrap ms-4">
+            {% for note in notes %}
+            <div class="main-container ">
+                <div class="card-container">
+                    <!--the front-->
+                    <div class="theFront">
+                        <div class=" card mt-3 ms-3 mb-3 d-flex flex-column justify-content-between align-items-center text-center"
+                            data-bs-theme="dark">
+                            <div class="card-header w-100 d-flex text-start">
+                                <small class="text-body-secondary"> {{note.updated_at|timesince|days_since }}</small>
+                            </div>
+                            <div class="card-body d-flex flex-column mt-3">
+                                <div class="text-center mb-3">
+                                    <h2 class="card-title fs-3 ">{{note.title}}</h2>
+                                    <h3 class="card-title fs-5"
+                                    style="font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;">
+                                    {{note.topic}}</h3>
+                                </div>
+                                <p class="card-text text-start"> {{note.pretext}}</p>
+                            </div>
+                            <div class="card-footer w-100 text-end">
+                                <small class="text-body-secondary">
+                                    Created By: {{note.created_by.title}}
+                                    {{note.created_by.first_name}}
+                                    {{note.created_by.last_name}}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    <!--the back-->
+                    <div class="theBack">
+                        <div class=" card mt-3 ms-3 mb-3 d-flex flex-column justify-content-between align-items-center text-center"
+                            data-bs-theme="dark">
+                            <div class="card-header w-100 d-flex justify-content-end">
+                                <small class="text-body-secondary">{{note.updated_at|timesince|days_since }}</small>
+                            </div>
+                            <div class="d-flex justify-content-center align-items-center">
+                                <div class="card-body d-flex flex-column mt-3 "> 
+                                    {% if note.textbook %}
+                                    <p class="card-text mb-3">Textbook Inferred: {{ note.textbook }}</p>
+                                    {% endif %}
+                                    <a href="{{ note.book_used_notes.file.url }}" target="_blank"
+                                        class="text-decoration-none mb-3">
+                                        {{ note.book_used_notes.name }}
+                                    </a>
+                                    {% if note.notes_file %}
+                                    <a href="{{ note.notes_file.url }}" target="_blank"
+                                        class="btn btn-success mx-5 mt-auto mb-2">
+                                        View Notes
+                                    </a>
+                                    {% elif note.notes_link %}
+                                    <a href="{{ note.notes_link }}" target="_blank"
+                                        class="btn btn-success mx-5 mt-auto mb-2">
+                                        View Notes
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="card-footer w-100  text-start">
+                                <small class="text-body-secondary">
+                                    Created By: {{note.created_by.title}}
+                                    {{note.created_by.first_name}}
+                                    {{note.created_by.last_name}}
+                                </small>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </section>
+    </div>
+</section>
+
+{% endblock %}

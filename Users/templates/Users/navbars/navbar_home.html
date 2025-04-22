@@ -1,0 +1,43 @@
+<nav class="navbar navbar-expand-lg " style="background-color: black;border-bottom: 1px solid rgb(229, 228, 226); " data-bs-theme="dark">
+    <div class="container-fluid">
+      <a class="brand-name" href="#">Gurukul</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent" >
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Study tools
+            </a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#" >View Notes</a></li>
+              <li><a class="dropdown-item" href="#" >Join classes</a></li>
+              <li><a class="dropdown-item" href="#" >Take Quiz</a></li>
+              <li><a class="dropdown-item" href="#" >View Books</a></li>
+            </ul>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Subject Areas
+            </a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#">Physics</a></li>
+              <li><a class="dropdown-item" href="#">Advanced Mathematics</a></li>
+              <li><a class="dropdown-item" href="#">Computer Science</a></li>
+            </ul>
+          </li>
+        </ul>
+
+        
+          <a href="{% url 'register' %}" class="btn btn-outline-success ms-2">
+          Register
+        </a>
+
+        <a href="{% url 'login' %}" class="btn btn-outline-success ms-2">
+          Login
+        </a>
+        
+      </div>
+    </div>
+  </nav>

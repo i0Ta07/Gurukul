@@ -1,0 +1,194 @@
+{% extends 'Users/parent.html' %}
+{% load static %}
+{% load custom_filters %}
+<!--html Parent template extended-->
+
+
+<!--block where the content will sit in the main file
+is inside block content and endblock same as in child-->
+{% block content %}
+
+
+
+{% include 'Users/navbars/navbar_user.html' %}
+
+
+<!-- Main Content -->
+<section class="user-main-container px-4 pt-5 ">
+    <div class="px-5 mt-4">
+        <div class="profile-user ">
+            <h2 style="font-size: 45px;  margin-bottom: -15px;">Welcome back, {{user.get_title_display}} {{user.first_name }}</h2>
+            <form class="d-flex" role="search">
+                <input class="form-control me-2" type="search" placeholder="Search quiz,notes,classes and books"
+                    aria-label="Search" style="width:450px;">
+                <button class="btn btn-outline-success ms-2" type="submit">Search</button>
+            </form>
+        </div>
+        <hr class="custom-border-bottom">
+    </div>
+
+
+    
+    <!-- Announcement Section -->
+    <section class="user-hp p-5">
+        <h2 class="fs-1 mb-3">Recent Announcements</h2>
+        <div class=" d-flex  ms-5 mt-2" data-bs-theme="dark">
+            {% for announcement in announcements|slice:":4" %} 
+                <div class="card ms-3 mb-3 text-center" style="width: 300px; height: 350px;" >
+                    <div class="card-header d-flex justify-content-between">
+                        <small class="text-body-secondary">{{announcement.get_visibility_display}}, {{ announcement.Class.name }}</small>
+                        <small class="text-body-secondary">{{announcement.updated_at|timesince|days_since}}</small>
+                    </div>
+                    <div class="card-body d-flex flex-column align-items-center mt-3">
+                        <h3 class="card-title fw-bolder">{{announcement.title}}</h3>
+                        <p class="priority-{{ announcement.priority }} mb-3  flex-wrap">
+                            {{ announcement.content }}
+                        </p>
+                        {% if announcement.attachment %}
+                        <a href="{{ announcement.attachment.url }}" target="_blank"
+                            class="btn btn-outline-success mt-1 mb-1">
+                            View Attachment
+                        </a>
+                        {% endif %}
+                    </div>
+                    <div class=" card-footer d-flex justify-content-between">
+                        <small class="text-body-secondary"> {{ announcement.get_priority_display }}</small>
+                        <small class="text-body-secondary">{{announcement.created_by.title}}
+                            {{announcement.created_by.first_name}} {{announcement.created_by.last_name}}
+                        </small>
+                    </div>
+                </div>
+            {% endfor %}
+            {% if announcements|length > 4 %}
+            <!-- View All Button -->
+            <div class="d-flex justify-content-center align-items-center ms-3">
+                <a href="{% url 'announcement_list' %}" 
+                class="btn btn-outline-success fs-5 mt-2">
+                View All
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Classes Section -->
+    <div class="class">
+        <section class="user-hp p-5">
+            <h2 class="fs-1">Your Classes</h2>
+            <section class=" d-flex  ms-5 mt-2">
+                {% for class in classes|slice:":4" %}
+                <div class="main-container">
+                    <div class="card-container">
+                        <!--the Front -->
+                        <div class="theFront">
+                            <div class="card ms-3 my-3" data-bs-theme="dark">
+                                <div class="card-header d-flex justify-content-end">
+                                    Students: {{ class.student_count }}
+                                </div>
+                                <div class="card-body d-flex flex-column justify-content-center align-items-center text-center">
+                                    <h5 class="card-title fw-bolder fs-3 mb-2">{{ class.name }}</h5>
+                                    <p class="card-text">
+                                        Topic: {{ class.current_topic }}<br>
+                                        Next Class: {{ class.next_class_date|date:"j M Y" }}<br>
+                                        {{ class.next_class_date|time:"h:i A" }}
+                                    </p>
+                                </div>
+                                <div class="card-footer">
+                                    {{ class.created_by.title }} {{ class.created_by.first_name }} {{ class.created_by.last_name }}
+                                </div>
+                            </div>
+                        </div>
+                        <!--the back-->
+                        <div class="theBack">
+                            <div class="card ms-3 my-3" data-bs-theme="dark">
+                                <div class="card-header ">
+                                    Students: {{ class.students.count }}
+                                </div>             
+                                <div class="card-body d-flex flex-column justify-content-center align-items-center text-center">
+                                    <p>
+                                        <span class="fw-bold fs-5">{{ class.description }}</span><br>
+                                        Next Topic: {{ class.next_topic }} <br>
+                                        Last Topic: {{ class.last_topic }}
+                                    </p>
+                                    <a href="{% url 'class_home' class_id=class.class_id %}" 
+                                    class="btn btn-primary d-flex justify-content-center mx-auto">
+                                    View Class
+                                    </a>
+                                </div>
+                                <div class="card-footer  d-flex justify-content-end">
+                                    {{ class.created_by.title }} {{ class.created_by.first_name }} {{ class.created_by.last_name }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% if classes|length > 4 %}
+                <!-- View All Button -->
+                <div class="d-flex justify-content-center align-items-center ms-3">
+                    <a href="{% url 'class_list' %}" class="btn btn-outline-success">
+                        View All
+                    </a>
+                </div>
+                {% endif %}
+                
+            </section>
+        </section>
+    </div>
+
+    <!-- Quiz Section -->
+    <section class="user-hp p-5">
+        <h2 class="fs-1">Recent Quizzes</h2>
+        <section class=" d-flex ms-5 mt-2">
+
+            <!--Quiz -->
+            <div class="d-flex justify-content-start flex-wrap text-center  my-3">
+                {% for quiz in quizzes|slice:":4" %}
+                {% if quiz.is_available %}
+                <div class="card ms-3 " data-bs-theme="dark" style="width: 280px; height: 280px;">
+                    <div class="card-header w-100 d-flex justify-content-between">
+                        <small class="text-body-secondary">Time :{{ quiz.time_limit|convert_duration }}</small>
+                        <small class="text-body-secondary">{{ quiz.updated_at|timesince|days_since }} </small>
+                    </div>
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                        <h3 class="card-title mt-3 fw-bolder"
+                            style="font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif">
+                            {{ quiz.name }}</h3>
+                        {% if quiz.end_time %}
+                        <p class=" fs-5 fw-bold text-center " style="font-size: 20px;">
+                            Last Date: {{ quiz.end_time|date:"j M Y" }}
+                        </p>
+                        {% endif %}
+                        <!--Take/View Quiz-->
+                        <a href="{% if user.user_type == 'teacher' %}{% url 'quiz_result' quiz_id=quiz.quiz_id %}{% else %}{% url 'quiz_guidelines' quiz_id=quiz.quiz_id %}{% endif %}" 
+                        class="btn btn-outline-warning ms-2">
+                            {% if user.user_type == 'teacher' %}
+                                View Quiz
+                            {% else %}
+                                Take Quiz
+                            {% endif %}
+                        </a>
+                    </div>
+                    <div class="card-footer w-100 d-flex justify-content-end">
+                        <small class="text-body-secondary">{{ quiz.created_by.title }}
+                            {{ quiz.created_by.first_name }} {{ quiz.created_by.last_name }}</small>
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+            {% if quizzes|length > 4 %}
+            <!-- View All Button -->
+            <div class="d-flex justify-content-center align-items-center ms-3">
+                <a href="{% url 'quiz_user_all_classes' %}" 
+                class="btn btn-outline-success">
+                View All
+                </a>
+            </div>
+            {% endif %}
+        </section>
+    </section>
+
+</section>
+
+{% endblock %}

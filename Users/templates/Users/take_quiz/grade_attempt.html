@@ -1,0 +1,62 @@
+{% extends 'Users/parent.html' %}
+{% load static %}
+
+{% block content %}
+
+{% include 'Users/navbars/navbar_user.html' %}
+
+<div class="container p-5">
+    <h2 class="text-center mb-4">Grade Attempt</h2>
+
+    {% if messages %}
+        <div id="message-container" class="alert alert-success">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+
+    {% for answer in answers %}
+        <form method="post" action="{% url 'grade_attempt' attempt_id=attempt.attempt_id %}">
+            {% csrf_token %}
+            <input type="hidden" name="answer_id" value="{{ answer.answer_id }}">
+            <div class="card mb-4 p-3" data-bs-theme="dark">
+                <div class="card-body">
+                    <h4 class="fw-bold">Q{{ forloop.counter }}. {{ answer.question.question_text }}</h4>
+                    
+                    {% if answer.question.question_image %}
+                        <img src="{{ answer.question.question_image.url }}" alt="Question Image" class="img-fluid my-2">
+                    {% endif %}
+
+                    <p><strong>Given Answer:</strong> {{ answer.text_answer }}</p>
+
+                    <div class="d-flex align-items-center">
+                        <label for="marks_{{ answer.answer_id }}" class="me-2 fw-bold">Marks :</label>
+                        <input type="number" name="marks" id="marks_{{ answer.answer_id }}"
+                            class="form-control me-2" style="width: 100px;" 
+                            min="0" max="{{ answer.question.marks }}" step="0.5" required>
+                        
+                        <button type="submit" class="btn btn-success">
+                            Save
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    {% empty %}
+        <div class="alert alert-info text-center">All answers have been evaluated successfully.</div>
+    {% endfor %}
+</div>
+<script>
+setTimeout(function() {
+    let messageContainer = document.getElementById('message-container');
+    if (messageContainer) {
+        messageContainer.style.transition = "opacity 0.8s ease-in-out";
+        messageContainer.style.opacity = "0";
+        setTimeout(() => messageContainer.remove(), 500); // Remove after fade-out
+    }
+}, 3000); // Disappears after 3 seconds
+</script>
+
+{% endblock %}
