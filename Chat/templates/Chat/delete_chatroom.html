@@ -1,0 +1,23 @@
+{% extends 'Users/parent.html' %}
+
+
+{% block content %}
+
+{% include 'Users/navbars/navbar_user.html' %}
+
+<div class="container p-5">
+    <h2>Delete this chatroom?</h3>
+    <p>{{ chat_group.groupchat_name }}</p>
+
+    <form action="" method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">
+            Yes, delete
+        </button>
+        <a class="btn btn-secondary ms-1" href="{{ request.META.HTTP_REFERER }}">Cancel</a>
+        <!-- href="{{ request.META.HTTP_REFERER }}" links back to last visited page -->
+    </form>
+</div>
+
+
+{% endblock %}
