@@ -8,7 +8,6 @@
 
 * [Features](#features)
 * [Technology Stack](#technology-stack)
-* [Code Structure](#code-structure)
 * [Real-Time Chat (WebSockets)](#real-time-chat-websockets)
 * [Installation & Setup](#installation--setup)
 * [Running the Application](#running-the-application)
@@ -46,39 +45,6 @@
 * **Deployment**: WSGI (HTTP) + ASGI (WebSockets)
 
 ---
-
-## 🗂 Code Structure
-
-```bash
-Gurukul/
-├── Chat/                 # Dedicated app for real-time messaging
-│   ├── consumers.py      # WebSocket logic for chat
-│   ├── models.py         # Message model
-│   ├── routing.py        # WebSocket URL routing
-│   ├── templates/        # Chat templates
-│   └── urls.py           # App-specific routes
-├── Users/                # Core app
-│   ├── models.py         # UserProfile, Quiz, Question, etc.
-│   ├── forms.py          # Forms for user and quiz logic
-│   ├── views.py          # Handlers for pages and logic
-│   ├── consumers.py      # WebSocket consumers (chat)
-│   ├── urls.py           # App routing
-│   └── templates/        # Organized by feature (Bootstrap 5)
-│       ├── users/
-│       ├── quiz/
-│       ├── class/
-│       └── chat/
-├── Gurukul/              # Project settings & config
-│   ├── settings.py
-│   ├── urls.py
-│   └── asgi.py
-├── static/               # CSS, JS, images
-├── media/                # Uploaded files
-├── docs/                 # Diagrams & reports
-├── manage.py             # Django CLI tool
-└── requirements.txt      # Python dependencies
-```
-
 
 ## 💬 Real-Time Chat (WebSockets)
 
