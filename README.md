@@ -132,6 +132,7 @@ We welcome contributions to improve Gurukul! Submit issues or PRs for:
 * New features or analytics
 * Improved UI/UX or dark/light theme toggles
 * Code refactoring or test coverage
+* AI integrations to create quizzes
 
 ---
 
