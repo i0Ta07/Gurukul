@@ -1,0 +1,81 @@
+{% extends 'Users/parent.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+
+{% block content %}
+
+
+{% include 'Users/navbars/navbar_user.html' %}
+
+<div class="p-5">
+    <div class="container d-flex justify-content-center align-items-center p-5" data-bs-theme="dark">
+        <form method="get" action="{% url 'add_friend' %}" class="row g-3 w-50">
+            {% for field in form %}
+            <div class="row justify-content-center mb-3 align-items-center">
+                <label class="col-3 col-form-label ">{{ field.label_tag }}</label>
+                <div class="col-4">
+                    <div class="input-group">
+                        {{ field|add_class:"form-control form-control-sm border border-secondary bg-dark text-white" }}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+            <div class="col-12 d-flex justify-content-center mt-3">
+                <button type="submit" class="btn btn-primary px-4 w-25">Search</button>
+            </div>
+
+        </form>
+    </div>
+
+    {% if users %}
+    <p class="text-center fs-3">Search Results</p>
+    <hr class="custom-border-bottom">
+    
+    
+    <div class="table-responsive" style="max-height: 450px; overflow-y: auto;">
+        <table class="table table-striped table-dark table-borderless table-hover fs-6 text-center align-middle ">
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col">S.No</th>
+                    <th scope="col">username</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">User Type</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr class="" >
+                    <th scope="row" >{{ forloop.counter0|add:1 }}</th>
+                    <td>{{ user.username }}  </td>
+                    <td>{{ user.first_name }} {{ user.last_name }} </td>
+                    <td>{{ user.get_user_type_display }}</td>
+                    <td>
+                        <form action="" method="get">
+                            {% csrf_token %}
+                            <input type="hidden" name="user_id" value="{{ user.id }}">
+                            <a href="?user_id={{ user.id }}" class="text-decoration-none  text-success fs-6 fw-bolder">ADD TO FRIEND</a>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+{% endblock %}

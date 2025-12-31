@@ -1,0 +1,126 @@
+{% extends 'Users/parent.html' %}
+{% load static %}
+
+{% block content %}
+
+
+<!--
+name 
+time limit
+Number of questions 
+
+
+-->
+
+{% include 'Users/navbars/navbar_user.html' %}
+
+
+<section class="user-main-container p-5">
+    <div class="px-5 mt-4">
+        <div class="profile-user d-flex justify-content-between">
+            <h2 class="fs-1 mb-1">{{quiz.name}}</h2>
+            <h3 style="margin-top: 15px;">Time : {{quiz.time_limit}}</h3>
+        </div>
+        <hr class="custom-border-bottom mt-0">
+    </div>
+    <div class="px-5 d-flex flex-column align-items-center">
+        <!-- Description -->
+        <div class="user-inside-block">
+            <p class="fs-4">{{quiz.description}}</p>
+        </div>
+    
+        <div class="d-flex justify-content-between">
+            <!-- Rules Section -->
+            <div class="user-inside-block w-50 px-3">
+                <h2 class="d-flex justify-content-center mb-2">Rules</h2>
+                <ul class="list fs-5"
+                    style="list-style-type:upper-roman;font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;">
+                    <li class="mb-3">
+                        <strong>Phones, textbooks, and internet</strong> are strictly <span class="fw-bolder">
+                            prohibited</span> during the entire quiz. Violating this rule can result in <span
+                            class="fw-bolder text-danger">disqualification</span>.
+                    </li>
+                    <li class="mb-3">
+                        <strong>Preparation:</strong> Ensure your device (computer, tablet) is <span
+                            class="text-success">fully charged</span> and connected to a <span
+                            class="text-warning">stable internet connection</span>. Have necessary materials (pen, paper,
+                        and calculator) ready. Store personal items away from your work area.
+                    </li>
+                    <li class="mb-3">
+                        <strong>Quiz Conduct:</strong> Read all questions carefully before answering. All questions are
+                        <span class="text-primary">compulsory</span>.
+                    </li>
+                    <li class="mb-3">
+                        <strong>Time Limit:</strong> The quiz will have a set time limit, which will be tracked by an
+                        <span class="text-warning">automatic timer</span>. The quiz will be automatically <span
+                            class="text-warning">submitted</span> once the <span class="text-danger">time runs out</span>.
+                    </li>
+                </ul>
+            </div>
+    
+            <!-- Regulations Section -->
+            <div class="user-inside-block w-50 px-3">
+                <h2 class="d-flex justify-content-center mb-2">Regulations</h2>
+                <ul class="list fs-5"
+                    style="list-style-type:upper-roman;font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;">
+                    <li class="mb-3">
+                        <strong>Monitoring:</strong> The quiz may be monitored through <span
+                            class="fw-bolder text-warning">proctoring software, webcams, or screenshots</span>. Suspicious
+                        activities like frequently leaving the quiz screen may result in <span
+                            class="text-danger fw-bolder">disqualification</span>.
+                    </li>
+                    <li class="mb-3">
+                        <strong>Cheating:</strong> Participants found cheating or attempting to cheat will be immediately
+                        <span class="text-danger fw-bolder">disqualified</span> and may face <span
+                            class="fw-bolder text-danger">bans from future quizzes</span>.
+                    </li>
+                    <li class="mb-3">
+                        <strong>Confidentiality:</strong> Quiz content is <span class="fw-bolder text-success">confidential</span>
+                        and must not be shared. Participants must agree to an <span
+                            class="fw-bolder text-primary">honor code</span> or integrity declaration before starting the
+                        quiz.
+                    </li>
+                    <li class="mb-3">
+                        <strong>Final Decision & Privacy:</strong> The quiz administrator’s decisions are <span
+                            class="fw-bolder text-danger">final</span>, and personal data collected will only be used for
+                        <span class="text-success">administration and evaluation purposes</span>.
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+    <!-- Checkbox Section -->
+    <div class="form-check mt-4" data-bs-theme="dark" style="scale: 1.5;">
+        <input class="form-check-input" type="checkbox" id="flexCheckDefault" onclick="toggleButton()">
+        <label class="form-check-label" for="flexCheckDefault" 
+            style="font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif">
+            I agree
+        </label>
+    </div>
+
+    <!-- Continue Button -->
+    <form class="d-flex justify-content-end w-100" action="{% url 'confirm_quiz' %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="quiz_id" value="{{ quiz.quiz_id }}">
+        <button type="submit" class="btn btn-primary fs-4 px-3 mt-3" 
+            id="continueBtn" disabled >
+            Continue
+        </button>
+    </form>
+
+
+
+</section>
+
+    <!-- JavaScript -->
+
+    <script>
+
+        function toggleButton() {
+            document.getElementById("continueBtn").disabled = !document.getElementById("flexCheckDefault").checked;
+        }
+    </script>
+
+
+
+{% endblock %}

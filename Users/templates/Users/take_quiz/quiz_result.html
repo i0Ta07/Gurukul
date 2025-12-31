@@ -1,0 +1,344 @@
+{% extends 'Users/parent.html' %}
+{% load static %}
+
+{% block content %}
+
+{% include 'Users/navbars/navbar_user.html' %}
+
+<section class="user-main-container p-5">
+    <div class="px-3 mt-4">
+        <div class="profile-user d-flex justify-content-between">
+            <div class="d-flex justify-content-start">
+                <a href="#Menu" data-bs-toggle="offcanvas" role="button" aria-controls="offcanvas">
+                    <img src="{% static 'Assets/menu.png' %}" alt="Menu" class="menu_icon"
+                        style="margin-bottom: -50px;">
+                </a>
+                <h2  class=" ms-2 fs-1 mt-2">{{ quiz.name }}</h2>
+                <h2 class="fs-5 mt-2">⭐{{ quiz.rating }}</h2> 
+            </div>
+            
+            <a href="#"  role="button" data-bs-toggle="modal" data-bs-target="#graphModal">
+                <img src="{% static 'Assets/analysis_icon.png' %}" alt="analysis_icon" class="menu_icon mt-3">
+            </a>
+
+            <!-- Graph Modal -->
+            <div class="modal fade" id="graphModal" tabindex="-1" aria-labelledby="graphModalLabel" aria-hidden="true" data-bs-theme="dark">
+                <div class="modal-dialog modal-xl modal-dialog-centered"> 
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="graphModalLabel">Live Quiz Analysis</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body d-flex justify-content-center align-items-center">
+                            <canvas id="liveGraphCanvas" style="width: 50vw; height: 75vh;"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr class="custom-border-bottom mt-0">
+    </div>
+    <div class="px-2 d-flex justify-content-between ">
+        <!-- Feedbacks -->
+        <div class="user-inside-block w-25">
+            <h2 class="d-flex justify-content-center mb-3">Feedbacks</h2>
+            <hr class="custom-border-bottom">
+            
+            <div class="accordion" id="base_accordian" data-bs-theme="dark">
+                <!-- Accordion Positive feedbacks -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#quiz_accordion" aria-expanded="true" aria-controls="quiz_accordion">
+                            Positive 
+                        </button>
+                    </h2>
+                    <div id="quiz_accordion" class="accordion-collapse collapse show" data-bs-parent="#base_accordian">
+                        <div class="accordion-body">
+                            <ul class="list-group list-group-flush">
+                            {% for feedback in high_ratings_feedback %}
+                                <li class="list-group-item">{{ feedback.feedback }} - ⭐{{ feedback.rating }}</li>
+                            {% empty %}
+                                <li class="list-group-item">No highly rated feedback available.</li>
+                            {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+  
+                <!-- Accordion Negative feedbacks -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#negative" aria-expanded="false" aria-controls="negative">
+                            Negative
+                        </button>
+                    </h2>
+                    <div id="negative" class="accordion-collapse collapse" data-bs-parent="#base_accordian">
+                        <div class="accordion-body">
+                            <ul class="list-group list-group-flush">
+                            {% for feedback in low_ratings_feedback %}
+                                <li class="list-group-item">{{ feedback.feedback }} - ⭐{{ feedback.rating }}</li>
+                            {% empty %}
+                                <li class="list-group-item">No low rated feedback available.</li>
+                            {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="user-inside-block w-75">
+            <div class="d-flex justify-content-between">
+                <h2 class="fs-1">Leaderboard</h2>
+                <form class="row g-3 mb-4" data-bs-theme="dark" >
+                    <div class="col-auto">
+                        <input type="text" class="form-control" style="width: 400px; height: 45px;"id="class" placeholder="Search username">
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-outline-success">
+                            Search</button>
+                    </div>
+                </form>
+            </div>
+            <div class="table-responsive" style="max-height: 450px; overflow-y: auto;">
+                <table class="table table-striped table-dark table-borderless table-hover fs-4 text-center">
+                    <caption data-bs-theme="dark" style="caption-side: top; text-align: center; font-size: 1.25rem; font-weight: bold;">
+                        List of users who attempted the quiz
+                    </caption>
+                    <thead class="table-dark">
+                        <tr>
+                            <th scope="col">Rank</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Percentile</th>
+                            <th scope="col">Score ({{ quiz.max_marks|floatformat:0 }})</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for attempt in attempts %}
+                        <tr class="bg-primary">
+                            <th scope="row">{{ forloop.counter0|add:1 }}</th>
+                            <td>{{ attempt.user.first_name }} {{ attempt.user.last_name }}</td>
+                            <td>{{ attempt.percentile_weighted_score }}</td>
+                            <td>{{ attempt.marks_scored }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+
+<!--Offcanvas-->
+<div class="offcanvas offcanvas-start me-5 mt-5 ms-5" tabindex="-1" id="Menu" aria-labelledby="offcanvasLabel"
+    data-bs-theme="dark" style="border-radius: 20px; max-width: 400px; max-height: 800px;">
+
+    <div class="offcanvas-header d-flex justify-content-between"
+        style="background-color: #022D35; font-family: 'Klavika';">
+        <div class="d-block">
+            <h3 class="offcanvas-title" id="offcanvasLabel">{{quiz.name}}</h3>
+            <h5 class="offcanvas-title" id="offcanvasLabel">{{user.first_name}} {{user.last_name}}, <span
+                    style="text-transform: capitalize;">{{user.user_type}}</span> </h5>
+        </div>
+        <!-- Close Button -->
+        <button type="button" class="btn-close mb-auto mt-1" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body"
+        style="font-weight:500 ;font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif">
+        <div class="list-group list-group-flush">
+            <!--View all questions with answers-->
+            {% if user.user_type == 'student' %}
+            <a href="{% url 'quiz_review' attempt_id=user_attempt.attempt_id %} " class="list-group-item list-group-item-action">My Review</a>
+            <a href="{% url 'quiz_submission' attempt_id=user_attempt.attempt_id %}" class="list-group-item list-group-item-action">My Score</a>
+            {% endif %}
+            {% if user.user_type == 'teacher' %}
+            {% if quiz.quiz_type != 'objective' %}
+            <a href="#" class="list-group-item list-group-item-action">Check Answers</a>
+            {% endif %}
+            <a href="{% url 'quiz_attempts' quiz_id=quiz.quiz_id %}" class="list-group-item list-group-item-action">Check Answers</a>
+            <div class="accordion" id="quiz_base_accordian" data-bs-theme="dark">
+                <!--Edit Quiz-->
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#quiz_accordion" aria-expanded="true" aria-controls="quiz_accordion">
+                            Edit Quiz
+                        </button>
+                    </h2>
+                    <div id="quiz_accordion" class="accordion-collapse collapse show" data-bs-parent="#quiz_base_accordian">
+                        <div class="accordion-body">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">Name and Description</li>
+                                <li class="list-group-item">Start an endtime</li>
+                                <li class="list-group-item">Duration</li>
+                                <li class="list-group-item">Add/Modify Questions</li>
+                                <li class="list-group-item">Assign to  Users and Classes</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+
+
+        </div>
+    </div>
+</div>
+    
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("graphModal").addEventListener("show.bs.modal", function () {
+            const quizId = "{{ quiz.quiz_id }}";  // Ensure quiz_id is passed correctly
+    
+            if (!quizId || quizId === "None") {
+                console.error("Quiz ID is missing!");
+                return;
+            }
+    
+            fetch(`/fetch-quiz-data/${quizId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "error") {
+                        alert("Error: " + data.message);
+                        return;
+                    }
+    
+                    drawGraph(data);
+                })
+                .catch(error => console.error("Fetch error:", error));
+        });
+    });
+
+    // Function to draw the graph using Chart.js
+    function drawGraph(data) {
+        const ctx = document.getElementById("liveGraphCanvas").getContext("2d");
+
+        // Destroy previous chart instance if it exists
+        if (window.myChart) {
+            window.myChart.destroy();
+        }
+
+        // Dark theme customization
+        const darkTheme = {
+            backgroundColor: "#1e1e1e", // Dark background
+            textColor: "#ffffff", // White text
+            gridColor: "rgba(255, 255, 255, 0.2)", // Light grid lines
+            borderColor: "rgba(255, 255, 255, 0.8)", // Borders
+            pointRadius: 5 // Bigger data points for visibility
+        };
+
+        document.getElementById("liveGraphCanvas").style.backgroundColor = darkTheme.backgroundColor;
+
+        // Create new chart instance
+        window.myChart = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: data.attempts,  // X-axis labels (attempt numbers)
+                datasets: [
+                    {
+                        label: "Marks Scored",
+                        data: data.marks_scored,
+                        borderColor: "#4dabf7", // Bright blue
+                        backgroundColor: "rgba(77, 171, 247, 0.3)",
+                        pointBackgroundColor: "#4dabf7",
+                        fill: true,
+                        tension: 0.3, // Smooth curve
+                        pointRadius: darkTheme.pointRadius
+                    },
+                    {
+                        label: "Moving Avg Marks Scored",
+                        data: data.moving_avg_marks_scored,
+                        borderColor: "#80d8ff", // Light blue
+                        borderDash: [5, 5],
+                        fill: false,
+                        tension: 0.3
+                    },
+                    {
+                        label: "Weighted Score",
+                        data: data.weighted_score,
+                        borderColor: "#ff6b6b", // Red for duration
+                        backgroundColor: "rgba(255, 107, 107, 0.3)",
+                        pointBackgroundColor: "#ff6b6b",
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: darkTheme.pointRadius
+                    },
+                    {
+                        label: "Moving Avg Weighted Score",
+                        data: data.moving_avg_weighted_marks,
+                        borderColor: "#ff8e8e", // Light red
+                        borderDash: [5, 5],
+                        fill: false,
+                        tension: 0.3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: darkTheme.textColor,
+                            font: {
+                                size: 14
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: "Attempts",
+                            color: darkTheme.textColor,
+                            font: {
+                                size: 18
+                            }
+                        },
+                        ticks: {
+                            color: darkTheme.textColor
+                        },
+                        grid: {
+                            color: darkTheme.gridColor
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: "Marks Scored / Weighted Score",
+                            color: darkTheme.textColor,
+                            font: {
+                                size: 18
+                            }
+                        },
+                        ticks: {
+                            color: darkTheme.textColor
+                        },
+                        grid: {
+                            color: darkTheme.gridColor
+                        }
+                    }
+                }
+            }
+        });
+    }
+</script>
+
+
+    
+
+{% endblock %}
+
+

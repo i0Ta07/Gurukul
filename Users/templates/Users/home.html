@@ -1,0 +1,84 @@
+{% extends 'Users/parent.html' %}
+{% load static %}
+<!--html template extended-->
+
+
+<!--block where the content will sit in the main file
+is inside block content and endblock same as in child-->
+{% block content %}
+
+{% include 'Users\navbars\navbar_home.html' %}
+<!-- Search Bar -->
+<section class="search-bar mt-5">
+    <h2 style="font-family :'Klavika'; font-size: 45px;">Luck is when preparation meets opportunity </h2>
+    <br>
+    <input type="text"
+        placeholder="Search for topics and related notes or quizzes using either code or by manually searching">
+    <button class="btn btn-outline-success ms-2">Search</button>
+</section>
+
+<!-- Features Section -->
+
+<div class="container-outside ">
+    <section class="container-inside" style="justify-content: end; margin-right: 35px;">
+        <img src="{% static 'Assets/Quiz_logo.png' %}" alt="abc" class="inside-block-img"
+            style="transform: scale(1.0); margin-right: -5px; margin-top: 15px;">
+        <section style="display: grid; " class="inside-block">
+            <h2 style="text-align: left; margin-top: -15px; margin-left: -15px;">Custom-designed Quiz<br></h2>
+            <p style="text-align:left; margin-left: -15px;"> Challenge your understandings and exam temperament with our
+                practice tests and quizzes created by experts.
+                Register now to enroll and boost your way to success. </p>
+            <button class="btn btn-outline-success ms-2" type="submit"
+                style="padding: 5px; font-size: 20px; font-family: 'Futura';">Register now</button>
+        </section>
+    </section>
+    <section class="container-inside" style="justify-content: start; margin-left: 35px;">
+        <section style="display: grid;" class="inside-block">
+            <h2 style="text-align: left; margin-top: -15px; margin-left: -15px;">My Kakshsas <br></h2>
+            <p style="text-align:left; margin-left: -15px;"> Enroll in classes for in-depth concepts and grasp true
+                knowledge at your own pace.
+                Join now to initiate your journey towards a better world</p>
+            <button class="btn btn-outline-success ms-2" type="submit"
+                style="padding: 5px; font-size: 20px; font-family: 'Futura';">Join Class</button>
+        </section>
+        <img src="{% static 'Assets/classroom-logo.png' %}" alt="abc" class="inside-block-img"
+            style="height:fit-content; transform: scale(1.05); margin-left: 25px; margin-top: 80px;">
+    </section>
+    <section class="container-inside" style="justify-content: end; margin-right: 35px;">
+        <img src="{% static 'Assets/notes_logo.png' %}" alt="abc" class="inside-block-img"
+            style="margin-top: 30px; transform: scale(0.75); margin-right: -20px;">
+        <section style="display: grid;" class="inside-block">
+            <h2 style="text-align: left; margin-top: -15px; margin-left: -15px;">Topic-specific notes<br></h2>
+            <p style="text-align:left; margin-left: -15px;"> For all your last minute revisions or all-nighter just
+                before exam WE GOT YOU!!!
+                Detailed topic-wise notes created by experts over several years and are updated regularly.</p>
+            <button class="btn btn-outline-success ms-2" type="submit"
+                style="padding: 5px; font-size: 20px; font-family: 'Futura'; ">View Notes</button>
+        </section>
+    </section>
+    <section class="container-inside" style="justify-content: start; margin-left: 35px;">
+        <section style="display: grid;" class="inside-block">
+            <h2 style="text-align: left; margin-top: -15px; margin-left: -15px;">Group Discussions <br></h2>
+            <p style="text-align:left; margin-left: -15px;"> Take part-in engaging group sessions to enchance learning
+                and improve critical thinking skills.
+                These sessions also enchance your problem-solving, communication skills and build confidence.</p>
+            <button class="btn btn-outline-success ms-2" type="submit"
+                style="padding: 5px; font-size: 20px; font-family: 'Futura';">Engage Now</button>
+        </section>
+        <img src="{% static 'Assets/group-discussion-logo.png' %}" alt="abc" class="inside-block-img"
+            style="height:200px; transform: scale(0.85); margin-left: 15px; margin-top: 80px;">
+    </section>
+    <section class="container-inside" style="justify-content: end; margin-right: 35px;">
+        <img src="{% static 'Assets/library_dark_logo.png' %}" alt="abc" class="inside-block-img"
+            style="margin-top: 60px; transform: scale(1.25); width: 100%; height: 60%; margin-right: -20px;">
+        <section style="display: grid;" class="inside-block">
+            <h2 style="text-align: left; margin-top: -15px; margin-left: -15px;">Digital Library<br></h2>
+            <p style="text-align:left; margin-left: -15px;"> All your books needs will be fulfilled in our digital
+                library. Gain access to any type of books including college-textbooks
+                ,fictions ,non-fictions fantasy etc. of all genres.</p>
+            <button class="btn btn-outline-success ms-2" type="submit"
+                style="padding: 5px; font-size: 20px; font-family: 'Futura'; ">Join Now</button>
+        </section>
+    </section>
+</div>
+{% endblock %}

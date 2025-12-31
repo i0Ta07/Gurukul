@@ -1,0 +1,42 @@
+<span id = "online-count" hx-swap-oob="outerHTML" class="pe-1 text-success fade-in-scale ">
+    {{ online_count }}
+    <style>
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(4); }
+            to {opacity: 1; transform: scale(1);}
+            
+        }
+        .fade-in-scale{
+            animation: fadeInScale 0.6s ease;
+        }
+    </style>
+</span>
+<!--outer html means whole element will be replaced-->
+{% if online_count %}
+<div class="position-absolute top-0 start-0 rounded-circle bg-success p-1 mt-2 ms-2" id="online-icon"></div>
+{% else %}
+<div class="position-absolute top-0 start-0 rounded-circle bg-secondary p-1 mt-2 ms-2" id="online-icon"></div>
+{% endif %}
+
+<ul class="list-unstyled d-flex gap-1" id="groupchat-members">
+    {% for member in chat_group.members.all %}
+    <li>
+        <a href="{% url 'profile_with_username' member.username %}" class="text-decoration-none d-flex flex-column text-muted align-items-center justify-content-center gap-1">
+            <div class="position-relative d-inline-block">
+                <img class="rounded-circle object-fit-cover mx-2" style="width: 3rem; height: 3rem;"
+                     src="{{ member.profile_photo.url }}" alt="User">
+                {% if member in chat_group.users_online.all %}
+                <span class="position-absolute bg-success border border-dark rounded-circle"
+                    style="width: 0.7rem; height: 0.7rem; bottom: -0.01rem; right: 0.3rem;"></span>
+
+                {% else %}
+                <span class="position-absolute bg-secondary border border-dark rounded-circle"
+                style="width: 0.7rem; height: 0.7rem; bottom: -0.01rem; right: 0.3rem;"></span>
+                {% endif %}
+            </div>
+            {{ member.first_name|slice:":10" }} <!--limit to the name -->
+        </a>
+
+    </li>
+    {% endfor %}
+</ul>

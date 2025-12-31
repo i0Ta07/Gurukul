@@ -1,0 +1,127 @@
+{% extends 'Users/parent.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block content %}
+
+{% include 'Users/navbars/navbar_user.html' %}
+
+<!-- Friends Section -->
+{% if friends %}
+<section class="user-hp p-5">
+    <h2 class="fs-1 mb-3">Your Friends</h2>
+    <div class=" d-flex ms-4 mt-2" data-bs-theme="dark">
+        {% for friend in friends %} 
+            <div class="card me-3 mb-3 text-center" style="width: 250px; height: 300px;" >
+                <div class="card-header d-flex justify-content-between">
+                    <small class="text-body-secondary"></small>
+                    <small class="text-body-secondary">{{friend.created_at|timesince|days_since}}</small>
+                </div>
+                <div class="card-body d-flex flex-column align-items-center mt-3">
+                    <a href="{% url 'profile_with_username' friend.username %}">
+                        <img class="rounded-circle object-fit-cover mb-1" style="width: 2rem; height: 2rem;"
+                        src="{{ friend.profile_photo.url }}">
+                    </a> 
+                    <h3 class="card-title fw-bolder">{{friend.username}}</h3>
+                    <p>{{friend.title}} {{friend.first_name}} {{friend.last_name}}</p>  
+                    <a href="{% url 'start_chat' friend.username %}" target="_blank"
+                        class="btn btn-outline-success m-1">
+                        Chat
+                    </a>
+                </div>
+                <div class=" card-footer d-flex justify-content-between">
+                    <small class="text-body-secondary"> </small>
+                    <small class="text-body-secondary">
+                    </small>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<!-- Group Chat Section -->
+<section class="user-hp p-5">
+    <h2 class="fs-1 mb-3">Your Group Chats</h2>
+    <div class=" d-flex ms-4 mt-2" data-bs-theme="dark">
+        {% for chatroom in user.chat_groups.all %} 
+            {% if chatroom.groupchat_name %}
+                <div class="card me-3 mb-3 text-center" style="width: 250px; height: 300px;" >
+                    <div class="card-header d-flex justify-content-between">
+                        <small class="text-body-secondary"></small>
+                        <small class="text-body-secondary">{{chatroom.created_at|timesince|days_since}}</small>
+                    </div>
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center h-100">
+                        <h3 class="card-title fw-bolder">{{chatroom.groupchat_name | slice:":30"}}</h3>  
+                        <a href="{% url 'chatroom' chatroom.group_name %}" target="_blank"
+                            class="btn btn-outline-success m-1">
+                            Chat
+                        </a>
+                    </div>
+                    <div class=" card-footer d-flex justify-content-between">
+                        <small class="text-body-secondary"> </small>
+                        <small class="text-body-secondary">
+                        </small>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+        <!--PUBLIC CHAT-->
+        <div class="card me-3 mb-3 text-center" style="width: 250px; height: 300px;" >
+            <div class="card-body d-flex flex-column justify-content-center align-items-center h-100">
+                <h3 class="card-title fw-bolder">PUBLIC CHAT</h3>            
+                <a href="{% url 'chat_home'  %}" target="_blank"
+                    class="btn btn-outline-success mt-1 mb-1">
+                    Chat
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+    
+<!-- Requests Section -->
+ {% if pending_req %}
+<section class="user-hp p-5">
+    <h2 class="fs-1 mb-3">Pending Req</h2>
+    <div class=" d-flex ms-4 mt-2" data-bs-theme="dark">
+        {% for req in pending_req %} 
+            <div class="card me-3 mb-3 text-center" style="width: 250px; height: 330px;" >
+                <div class="card-header d-flex justify-content-between">
+                    <small class="text-body-secondary"></small>
+                    <small class="text-body-secondary">{{req.created_at|timesince|days_since}}</small>
+                </div>
+                <div class="card-body d-flex flex-column align-items-center mt-3">
+                    <a href="{% url 'profile_with_username' req.from_user.username  %}">
+                        <img class="rounded-circle object-fit-cover mb-1" style="width: 2rem; height: 2rem;"
+                        src="{{ req.from_user.profile_photo.url }}">
+                    </a> 
+                    <h3 class="card-title fw-bolder">{{ req.from_user.username }}</h3>
+                    <p>{{req.from_user.title}} {{req.from_user.first_name}} {{req.from_user.last_name}}</p>  
+                    <form method="post" action="{% url 'user_friends_list' %}" class="d-inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="req_id" value="{{ req.id }}">
+                        <button type="submit" name="action" value="accept" class="btn btn-outline-success m-1">Accept</button>
+                    </form>
+                    
+                    <form method="post" action="{% url 'user_friends_list' %}" class="d-inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="req_id" value="{{ req.id }}">
+                        <button type="submit" name="action" value="reject" class="btn btn-outline-danger m-1">Reject</button>
+                    </form>
+                </div>
+                <div class=" card-footer d-flex justify-content-between">
+                    <small class="text-body-secondary"> </small>
+                    <small class="text-body-secondary">
+                    </small>
+                </div>
+            </div>
+        {% endfor %}
+        
+    </div>
+</section>
+{% endif %}
+
+
+
+{% endblock %}

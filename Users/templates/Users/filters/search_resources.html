@@ -1,0 +1,149 @@
+{% extends 'Users/parent.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+
+{% block content %}
+
+
+{% include 'Users/navbars/navbar_user.html' %}
+
+<div class="p-5">
+    <div class="container d-flex flex-column justify-content-center align-items-center p-5" data-bs-theme="dark">
+        <ul class="nav nav-tabs" id="formTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="book-tab" data-bs-toggle="tab" data-bs-target="#book-form" type="button" role="tab">
+                    Book
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="notes-tab" data-bs-toggle="tab" data-bs-target="#notes-form" type="button" role="tab">
+                    Notes
+                </button>
+            </li>
+        </ul>
+    
+        <div class="tab-content p-1 mt-5 w-100" data-bs-theme="dark">
+            <div class="tab-pane fade show active" id="book-form" role="tabpanel">
+                <form method="get" action="{% url 'search_resources' %}" class="row g-4">
+                    <input type="hidden" name="type" value="book">
+                    {% for field in books_form %}
+                    <div class="col-md-6 d-flex align-items-center">
+                        <label class="form-label me-auto text-nowrap" style="width: 150px;">{{ field.label_tag }}</label>
+                        {{ field|add_class:"form-control form-control-sm border border-secondary bg-dark text-white" }}
+                    </div>
+                    {% endfor %}
+                    <div class="col-12 d-flex justify-content-center mt-5">
+                        <button type="submit" class="btn btn-primary px-4">Search</button>
+                    </div>
+                </form>
+            </div>
+    
+            <div class="tab-pane fade" id="notes-form" role="tabpanel">
+                <form method="get" action="{% url 'search_resources' %}" class="row g-3 w-50 mx-auto">
+                    <input type="hidden" name="type" value="notes">
+                    {% for field in notes_form %}
+                    <div class="row justify-content-center mb-3 align-items-center">
+                        <label class="col-3 col-form-label">{{ field.label_tag }}</label>
+                        <div class="col-4">
+                            <div class="input-group">
+                                {{ field|add_class:"form-control form-control-sm border border-secondary bg-dark text-white" }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    <div class="col-12 d-flex justify-content-center mt-3">
+                        <button type="submit" class="btn btn-primary px-4 ">Search</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+
+    {% if notes %}
+    <p class="text-center fs-3">Search Results</p>
+    <hr class="custom-border-bottom">
+    <div class="table-responsive" style="max-height: 450px; overflow-y: auto;">
+        <table class="table table-striped table-dark table-borderless table-hover fs-6 text-center align-middle ">
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col">S.No</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Created By</th>
+                    <th scope="col">Topic</th>
+                    <th scope="col">Notes</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for note in notes %}
+            <tr>
+                <th scope="row">{{ forloop.counter }}</th>
+                <td>{{ note.title }}</td>
+                <td>{{ note.created_by.title }} {{ note.created_by.first_name }} {{ note.created_by.last_name }}</td>
+                <td>{{ note.topic }}</td>
+                {% if note.notes_file %}
+                <td><a href="{{ note.notes_file.url }}" class="text-decoration-none text-success" target="_blank">Download Notes</a></td>
+                {% else %}
+                <td><a href="{{ note.notes_link }}" class="text-decoration-none text-success" target="_blank">Open Link</a></td>
+                {% endif %}
+                <td>
+                    <a href="?notes_id={{ note.notes_id }}" class="text-decoration-none text-success fs-6 fw-bolder">
+                        SAVE
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    {% if books %}
+    <p class="text-center fs-3">Search Results</p>
+    <hr class="custom-border-bottom">
+    <div class="table-responsive" style="max-height: 450px; overflow-y: auto;">
+        <table class="table table-striped table-dark table-borderless table-hover fs-6 text-center align-middle ">
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col">S.No</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Author</th>
+                    <th scope="col">Edition</th>
+                    <th scope="col">Cover</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for book in books %}
+                <tr class="">
+                    <th scope="row">{{ forloop.counter0|add:1 }}</th>
+                    <td>{{ book.name }} </td>
+                    <td>{{ book.author }} </td>
+                    <td>{{ book.edition}}</td>
+                    <td><a href="{{ book.cover_image.url }}" class="text-decoration-none text-success" target="_blank">View</a></td>
+                    <td>
+                        <form action="" method="get">
+                            {% csrf_token %}
+                            <input type="hidden" name="book_id" value="{{ book.book_id }}">
+                            <a href="?book_id={{ book.book_id }}"
+                                class="text-decoration-none  text-success fs-6 fw-bolder">SAVE</a>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+
+
+
+
+
+
+
+{% endblock %}

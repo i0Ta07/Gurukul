@@ -1,0 +1,91 @@
+{% extends 'Users/parent.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block content %}
+{% include 'Users/navbars/navbar_user.html' %}
+<div class="p-5">
+<div class=" d-flex flex-column " data-bs-theme="dark">
+    <div class="position-relative text-center">
+        <h2>Quiz Review</h2>
+        <a href="{% url 'quiz_submission' attempt_id=attempt.attempt_id %}" class="btn btn-outline-danger  position-absolute end-0 top-50 translate-middle-y">
+            Exit
+        </a>
+    </div>
+    <p class="text-center me-5 ">These are all the questions that were either incorrect or unattempted.</p>
+
+
+    <div class="d-flex flex-wrap">
+        {% for question in questions %}
+        <div class="card mb-3 ms-3" style="height: 360px; width: 300px;">
+            <div class="card-body ">
+                {% if question.question_type != 'text' %}
+                <p class="text-end">
+                    {% with question.success_rate as success_rate %}
+                    {{ question|success_rate_percentage }}% <!--argument|filter-->
+                    {% endwith %}
+                </p>
+                {% endif %}
+                <p class="text-center"> {{ question.question_text }}</p>
+                {% if question.question_type != 'text' %}
+                    <ul class="list-group">
+                        {% for option in question.options %}
+                        <li class="list-group-item 
+                                {% if user_answers|get_val:question.question_id == option %} 
+                                    list-group-item-danger font-weight-bold 
+                                {% elif option == question.correct_option %}
+                                    list-group-item-success 
+                                {% endif %}">
+                            {{ option }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+               <p class="fs-6"> {{ question.remarks }}</p>
+                {% endif %}
+                {% if question.question_image %}
+                <div class="text-center">
+                    <button type="button" class="btn btn-primary btn-sm m-3" data-bs-toggle="modal"
+                        data-bs-target="#imageModal" onclick="updateModal('{{ question.question_image.url }}')">
+                        View Image
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Image Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true" data-bs-theme="dark">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageModalLabel">Question Image</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalImage" src="" class="img-fluid" alt="Question Image">
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<!--
+    Finds the <img> tag inside the modal.
+    Changes its src attribute to the new imageUrl (from the clicked question).
+-->
+<script>
+    function updateModal(imageUrl) {
+        document.getElementById('modalImage').src = imageUrl;
+    }
+</script>
+
+
+
+
+
+
+
+{% endblock %}

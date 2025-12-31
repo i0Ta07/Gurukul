@@ -1,0 +1,71 @@
+{% extends 'Users/parent.html' %}
+{% load static %}
+{% load custom_filters %}
+<!--html Parent template extended-->
+
+
+<!--block where the content will sit in the main file
+is inside block content and endblock same as in child-->
+{% block content %}
+
+{% include 'Users/navbars/navbar_user.html' %}
+<!-- Main Content -->
+<section class="user-main-container p-5">
+    <div class="mx-4 mt-4">
+        <div class="profile-user" style="display: flex; justify-content: space-between;">
+            <h2 style="font-size: 45px;  margin-bottom: -15px;">Specifically Assigned Quizzes</h2>
+            <div class="d-flex">
+                <form class="d-flex" role="search">
+                    <input class="form-control me-2" type="search" placeholder="Search quiz" aria-label="Search"
+                        style="width:450px;">
+                    <button class="btn btn-outline-success ms-2" type="submit">Search</button>
+                </form>
+            </div>
+        </div>
+        <hr class="custom-border-bottom">
+    </div>
+    <div style="font-size: 20px; font-family:Verdana, Geneva, Tahoma, sans-serif">
+        <marquee direction="left" behavior="alternate" scrollamount="7" class="my-3">
+            These quiz are specifically assigned to you by the quiz administrator.
+        </marquee>
+    </div>
+    <!--Quiz -->
+    <div class="d-flex justify-content-start ms-5 flex-wrap text-center">
+        {% for quiz in quizzes %}
+        {% if quiz.is_available %}
+        <div class="card ms-3 " data-bs-theme="dark" style="width: 280px; height: 280px;">
+            <div class="card-header w-100 d-flex justify-content-between">
+                <small class="text-body-secondary">{{ quiz.time_limit }}</small>
+                <small class="text-body-secondary">{{ quiz.updated_at|timesince }} ago</small>
+            </div>
+            <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                <h3 class="card-title mt-3 fw-bolder"
+                    style="font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif">
+                    {{ quiz.name }}</h3>
+                {% if quiz.end_time %}
+                <p class=" fs-5 fw-bold text-center " style="font-size: 20px;">
+                    Last Date: {{ quiz.end_time|date:"j M Y" }}
+                </p>
+                {% endif %}
+                <!--Take/View Quiz-->
+                <a href="{% if user.user_type == 'teacher' %}{% url 'quiz_result' quiz_id=quiz.quiz_id %}{% else %}{% url 'quiz_guidelines' quiz_id=quiz.quiz_id %}{% endif %}" 
+                class="btn btn-outline-warning ms-2">
+                {% if user.user_type == 'teacher' %}
+                    View Quiz
+                {% elif user.user_type == 'student' %}
+                    Take Quiz
+                {% endif %}
+                </a>
+            </div>
+            <div class="card-footer w-100 d-flex justify-content-end">
+                <small class="text-body-secondary">{{ quiz.created_by.title }}
+                    {{ quiz.created_by.first_name }} {{ quiz.created_by.last_name }}</small>
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+
+</section>
+
+{% endblock %}

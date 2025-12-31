@@ -1,0 +1,553 @@
+{% extends 'Users/parent.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block content %}
+
+<div class="quiz-container no-select" id="quiz-wrapper">
+    <div class="d-flex justify-content-between ">
+        <p class="brand-name fs-2 m-3">Gurukul</p>
+        <h3 class="m-3 fs-1" style="font-family: Klavika;">{{ quiz_name }}</h1>
+            {% if time_limit_seconds %}
+            <div>
+                <p class="fs-2 m-3"><span id="time-remaining"></span></p>
+            </div>
+            {% endif %}
+    </div>
+    <hr class="custom-border-bottom m-0">
+    <div class="d-flex justify-content-between align-items-center w-100 " style="font-family: Klavika;">
+        <p class="fs-3 text-warning mb-0 mx-auto text-center">Make sure to save your response before clicking on submit
+            anytime during the quiz. DO NOT RELOAD THE PAGE</p>
+        <form method="post">
+            <button type="button" class="btn btn-success text-light m-3 px-3 py-2 fs-5" name="submit_quiz"
+                data-bs-toggle="modal" data-bs-target="#completion_modal">
+                Submit Quiz
+            </button>
+        </form>
+    </div>
+
+    <div class="d-flex justify-content-between py-5 px-3 fs-3 " style="font-family: Klavika;">
+        <!--class changes the option-->
+        <!--CSRf token not needed with Django channels-->
+        {% include 'Users/take_quiz/partials/question_block.html' %}
+
+    </div>
+
+    <!--Submit button-->
+    <form method="post">
+        {% csrf_token %}
+        <!-- Modal -->
+        <div class="modal fade" id="completion_modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+            aria-labelledby="staticBackdropLabel" aria-hidden="true" data-bs-theme="dark">
+            <div class="modal-dialog ">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="staticBackdropLabel">Submit Quiz</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to submit your quiz?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, Continue</button>
+                        <button type="submit" class="btn btn-primary" name="confirm_submit">Yes, Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Fullscreen Reinforcement -->
+<div class="modal fade" id="fullscreenWarningModal" data-bs-backdrop="static" data-bs-keyboard="false"
+    aria-hidden="true" data-bs-theme="dark" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Fullscreen Required</h5>
+            </div>
+            <div class="modal-body">
+                <p>You exited fullscreen. This quiz requires fullscreen mode to continue.</p>
+            </div>
+            <div class="modal-footer">
+                <button id="returnFullscreenBtn" class="btn btn-primary">Return to Fullscreen</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script>
+
+    const quizId = "{{ quiz.quiz_id }}";
+    const socket = new WebSocket("ws://" + window.location.host + "/ws/quiz/" + quizId + "/");
+    let currentAnswer = null;
+    let question_index = null;
+    const totalQuestions = "{{ total_questions | length }}"
+    let prefilled = false;
+    const timerElement = document.getElementById("time-remaining");
+    let timeRemaining = 0;
+    let timerInterval = null;
+    console.log("Total Questions are ", totalQuestions)
+
+    socket.onmessage = function (e) {
+        const msg = JSON.parse(e.data); //We send data and type. So msg=event.data
+
+        if (msg.type === "question") {
+            question_subtype = msg.data.subtype
+            console.log(question_subtype)
+            question_index = msg.data.index + 1;
+
+            // reset state for the newly loaded question
+            prefilled = false;
+            currentAnswer = null;
+
+            //mark the current question
+            markQuestionButton(question_index, "light", "light")
+            renderQuestion(msg.data);
+            console.log("Sent question")
+        }
+        if (msg.type === "saved_answer") {
+            const answer = msg.answer;
+            console.log("Displaying saved answer: ", answer);
+            if (answer !== undefined && answer !== null && answer !== "") {
+                setTimeout(() => {
+                    applyPrefill(answer);
+                }, 0);
+            }
+            else {
+                // ensure prefilled false when backend has no answer
+                prefilled = false;
+                currentAnswer = null;
+            }
+
+        }
+        if (msg.type === "reload_answers") {
+            console.log("Received reviewd answers")
+            const answeredMarked = msg.review_but_answered || [];
+            //console.log("Here I am",answeredMarked)
+            const unansweredMarked = msg.review_not_answered || [];
+            const answered = msg.local_answers || [];
+
+            // Answered + Yellow outline + Green text
+            answeredMarked.forEach(index => {
+                markQuestionButton(index + 1, "warning", "success"); // To match the index of buttons
+            });
+
+            // Not Answered + Yellow outline + Red text
+            unansweredMarked.forEach(index => {
+                markQuestionButton(index + 1, "warning", "danger");
+            });
+
+            answered.forEach(index => {
+                markQuestionButton(index + 1, "success", "light");
+            });
+
+        }
+        if (msg.type === "redirect") {
+            window.location.href = msg.url;
+        }
+        if (msg.type === "time") {
+            timeRemaining = msg.remaining_time
+            start_timer()
+
+        }
+    };
+
+    function start_timer() {
+        // If user reconnects stop the execution of previous time and start a new one.
+        if (timerInterval) {
+            clearInterval(timerInterval);
+        }
+
+        //set Interval is built in method that runs the function after fixed interval of time
+        // Here we run timeInterval method after 1000 milliseconds or 1 second. 
+        timerInterval = setInterval(() => {
+
+            if (timeRemaining <= 0) {
+                clearInterval(timerInterval);
+                // Let backend handle auto-submit
+                return;
+            }
+
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+
+            timerElement.textContent =
+                `${minutes}:${seconds < 10 ? "0" + seconds : seconds}`;
+
+            timeRemaining--;
+        }, 1000);
+    }
+
+    function renderQuestion(data) {
+        // Start HTML with question text
+        // For display we only show it +1
+        let html = `<h3>Q${data.index + 1}. ${data.text}</h3>`;
+
+        // Add image if present
+        if (data.image_url) {
+            html += `
+                <img src="${data.image_url}" 
+                    class="img-fluid mt-2 mb-3" 
+                    style="max-height: 300px;">
+            `;
+        }
+
+        // Add options
+        html += `<div class="mb-3 d-flex flex-column">`;
+        if (data.subtype === 'mcq' || data.subtype === 'true_false') {
+
+            data.options.forEach((opt, i) => {
+                html += `
+                    <div>
+                        <input type="radio" 
+                            name="answer" 
+                            id="opt${i}" 
+                            value="${opt}" 
+                            onchange="currentAnswer='${opt}'">
+                        <label class="form-check-label fs-4" for="opt${i}">
+                            ${opt}
+                        </label>
+                    </div>
+                `;
+            });
+            html += `</div>`;
+
+        } else if (data.subtype === 'text') {
+
+            html += `
+                <textarea 
+                    class="form-control fs-5 p-1" 
+                    id="text-answer"
+                    maxlength="600"
+                    data-bs-theme="dark"
+                    style="width: 900px; height: 250px; resize: none;"
+                    placeholder="Type your answer here..."
+                    oninput="currentAnswer=this.value"></textarea>
+
+            `;
+        }
+        // Render in DOM
+        document.getElementById("question").innerHTML = html;
+        //Disabe current button
+        document.querySelector(
+            `.question-btn[data-question-index="${data.index + 1}"]`
+        ).disabled = true;
+
+    }
+
+    //Buttons
+    document.getElementById("next-btn").onclick = function () {
+        socket.send(JSON.stringify({
+            action: "next",
+            answer: currentAnswer
+        }));
+        console.log("Question Index = ", question_index);
+        enableCurrentButton(question_index);
+
+        // If answer given set it green
+        if (question_index < totalQuestions) {
+
+            // For MCQ
+            const selected = getSelectedAnswer();
+            if (selected) {
+                markQuestionButton(question_index, "success", "light")
+                console.log("Question marked green")
+            }
+            else if (currentAnswer === null && !selected) {
+                markQuestionButton(question_index, "danger", "light")
+                console.log("Question marked red")
+            }
+
+            // TextBox
+            const textBox = document.getElementById("text-answer");
+            if (textBox) {
+                console.log("Textbox contains ", textBox.value)
+                if (textBox.value.trim() !== '') {
+                    markQuestionButton(question_index, "success", "light")
+                }
+                else {
+                    markQuestionButton(question_index, "danger", "light")
+                }
+            }
+
+        }
+        console.log("I am inside next-btn and current _Answer is ", currentAnswer);
+        currentAnswer = null
+
+    };
+
+    document.getElementById("prev-btn").onclick = function () {
+        currentAnswer = null
+        socket.send(JSON.stringify({
+            action: "previous"
+        }));
+        enableCurrentButton(question_index);
+
+        // Previous button do not save the answer even if the answer is marked it will not save it
+        // If the question is already marked then it will be green
+        if (question_index > 1) {
+            if (prefilled) {
+                markQuestionButton(question_index, "success", "light")
+            }
+            else {
+                markQuestionButton(question_index, "danger", "light")
+            }
+        }
+
+    };
+
+    document.getElementById("clear-btn").onclick = function () {
+        socket.send(JSON.stringify({
+            action: "clear"
+        }));
+
+        currentAnswer = null;
+
+        const selected = getSelectedAnswer();
+        if (selected) {
+            selected.checked = false;
+        }
+
+        // 2. Clear text input (Subjective question)
+        const textBox = document.getElementById("text-answer");
+        if (textBox) {
+            textBox.value = "";
+        }
+        prefilled = false // If the answer is deleted that means no prefilled
+
+    };
+
+    document.getElementById("review-btn").onclick = function () {
+        const selected = getSelectedAnswer();
+        let subtype = null;
+
+        if (selected) {
+            subtype = "answered";
+            markQuestionButton(question_index, "warning", "success")
+
+        } else {
+            subtype = "unanswered";
+            markQuestionButton(question_index, "warning", "danger")
+
+        }
+
+        socket.send(JSON.stringify({
+            action: "review",
+            subtype: subtype,
+            answer: currentAnswer
+        }));
+        enableCurrentButton(question_index);
+        currentAnswer = null //Reinitialize the currentAnswer to None, otherwise it will keep sending the previous answers
+    };
+
+
+    // function to check the current question is answered or not; return the whole selected input obejct else false
+    function getSelectedAnswer() {
+        const selected = document.querySelector('input[name="answer"]:checked');
+        return selected ? selected : false;
+    }
+
+    // We enable the current button back, before leaving the question in navigation and inside next,prev and review buttons
+    function enableCurrentButton(button_index) {
+        const btn = document.querySelector(
+            `.question-btn[data-question-index="${button_index}"]`
+        );
+        if (btn) {
+            btn.disabled = false;
+        }
+    }
+
+
+
+
+    // Navigation using the listed question indexes
+    document.addEventListener("click", function (e) {
+        if (e.target.classList.contains("question-btn")) {
+            currentAnswer = null;
+
+            selected = getSelectedAnswer()
+            if (selected) {
+                markQuestionButton(question_index, "success", "light")
+
+            } else {
+                markQuestionButton(question_index, "danger", "light")
+
+            }
+            const index = e.target.dataset.questionIndex; //get +1 value from forloopcounter
+            // we have data-question-index custom html attribute that stores the {{forloop.counter}}
+
+            socket.send(JSON.stringify({
+                action: "navigate",
+                index: parseInt(index) - 1
+            }));
+            enableCurrentButton(question_index);
+        }
+    });
+
+    //Mark the questions and send them to backend to save them in case of reconnect. 
+    function markQuestionButton(index, outlineColor, textColor) {
+        const button = document.querySelector(
+            `[data-question-index="${index}"]`
+        );
+        if (!button) return;
+
+        // Remove previously applied styles
+        button.classList.remove(
+            "btn-outline-primary", "btn-outline-success",
+            "btn-outline-warning", "btn-outline-danger", "btn-outline-info",
+            "btn-outline-light", "btn-outline-dark",
+            "text-success", "text-danger", "text-primary", "text-dark", "text-light"
+        );
+
+
+        // Apply new outline color + text color
+        button.classList.add(`btn-outline-${outlineColor}`);
+        button.classList.add(`text-${textColor}`);
+    }
+
+
+    //Prefill    
+    function applyPrefill(answer) {
+        console.log("In prefill");
+        prefilled = false; // reset for each question
+
+        //console.log("textarea exists?", !!document.getElementById('text-answer'));
+        console.log("Answer before entering any type is ", answer);
+
+        // Guard: if backend sent nothing, bail out (and keep prefilled=false)
+        if (answer === null || answer === undefined || answer === "") {
+            return;
+        }
+        prefilled = true;  //  question originally had an answer
+
+
+        if (question_subtype === "mcq" || question_subtype === "true_false") {
+            const radio = document.getElementById(`opt${answer}`);
+            console.log("Answer Index = ", radio)
+            if (radio) {
+                radio.checked = true;
+                currentAnswer = radio.value;
+            }
+            // else {
+            //     // defensive: if option doesn't exist, clear prefilled
+            //     prefilled = false;
+            // }
+
+        } else if (question_subtype === "text") {
+            const textarea = document.getElementById('text-answer');
+            if (textarea) {
+                textarea.value = answer;
+                currentAnswer = answer;
+
+
+                console.log("Answer = ", answer);
+            }
+            // else {
+            //     // defensive: if option doesn't exist, clear prefilled
+            //     prefilled = false;
+            // }
+        }
+    }
+
+    let fullscreenModal = null;
+    const quizWrapper = document.getElementById("quiz-wrapper");
+
+    function enterFullscreen() {
+        if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen().catch(() => { });
+        }
+    }
+
+    // Open modal asking user to click the button
+    function showFullscreenModal() {
+        quizWrapper.classList.add("blur-content");
+        if (!fullscreenModal) {
+            fullscreenModal = new bootstrap.Modal(
+                document.getElementById("fullscreenWarningModal"),
+                { backdrop: 'static', keyboard: false }
+            );
+        }
+        fullscreenModal.show();
+    }
+
+    // Automatically fullscreen on first load
+    document.addEventListener("DOMContentLoaded", () => {
+        // Try to enter fullscreen immediately
+        enterFullscreen();
+
+        // If fullscreen is not active, request it on first user click
+        if (!document.fullscreenElement) {
+            document.body.addEventListener("click", enterFullscreen, { once: true });
+        }
+        const navEntry = performance.getEntriesByType("navigation")[0];
+        const isReload = navEntry.type === "reload";
+
+
+        if (isReload) {
+            showFullscreenModal();
+
+            socket.addEventListener("open", () => {
+                socket.send(JSON.stringify({ action: "reload" }));
+            });
+        }
+
+
+    });
+
+    // Listen for exit
+    document.addEventListener("fullscreenchange", () => {
+
+        if (!document.fullscreenElement) {
+
+            // Send cheat signal to backend
+            socket.send(JSON.stringify({
+                action: "fullscreen_exit"
+            }));
+            showFullscreenModal();
+            document.documentElement.requestFullscreen()
+        }
+    });
+
+    // Handle “Return to Fullscreen”
+    document.getElementById("returnFullscreenBtn").addEventListener("click", async () => {
+        await enterFullscreen();
+        quizWrapper.classList.remove("blur-content");
+        fullscreenModal.hide();
+    });
+
+    //Disable dev tools
+    // document.addEventListener('keydown', (e) => {
+    //     if (
+    //         e.key === "F12" || e.key === "Escape" || e.key === "F11"
+    //             (e.ctrlKey && e.shiftKey && e.key === "I") ||
+    //         (e.ctrlKey && e.shiftKey && e.key === "J") ||
+    //         (e.ctrlKey && e.key === "U")
+    //     ) {
+    //         e.preventDefault();
+    //         e.stopPropagation();
+    //     }
+    // });
+
+    // document.addEventListener("contextmenu", e => e.preventDefault());
+    // document.addEventListener("copy", e => e.preventDefault());
+    // document.addEventListener("paste", e => e.preventDefault());
+    // document.addEventListener("cut", e => e.preventDefault());
+    // document.addEventListener("dragstart", e => e.preventDefault());
+    // document.addEventListener("selectstart", e => e.preventDefault());
+
+
+
+
+    // form buttons start form 1
+    // question_index starts from 0
+    // 
+
+
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,25 @@
+    <div class="d-flex flex-column" >
+
+        <div class="d-flex flex-wrap flex-column" id="question"  ></div>
+        <div class="d-flex justify-content-evenly ">
+            <button class="btn btn-warning btn-lg ms-3 px-3 py-2" id="prev-btn">Previous</button>
+            <button class="btn btn-danger  btn-lg ms-3 px-3 py-2" id="clear-btn">Clear Response</button>
+            <button class="btn btn-success btn-lg ms-3 px-3 py-2" id="next-btn">Save & Next</button>
+            <button class="btn btn-secondary btn-lg ms-3 px-3 py-2" id="review-btn">Mark for Review & Next</button>
+        </div>
+    </div>
+
+    <!-- Right Section for Question Navigation -->
+    <div class="d-flex flex-column align-items-center p-3 " style="width: 500px; height: 500px;"> <!-- inside-block m-0  me-5 -->
+        <h4 class="mb-1 fs-3">Questions</h4>
+        <div class="d-flex flex-wrap" id="nav-buttons">
+            {% for i in total_questions %}
+            <!--Starts from 1 for display and sends the same +1 value to Javascript below -->
+                <button class="btn m-2 question-btn btn-lg btn-outline-primary" data-question-index="{{ forloop.counter }}">
+                    {{ forloop.counter }}
+                </button>
+            {% endfor %}
+        </div>
+    </div>
+
+

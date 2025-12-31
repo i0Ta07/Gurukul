@@ -1,0 +1,132 @@
+{% extends 'Users/parent.html' %}
+{% load static %}
+
+
+{% block content %}
+
+{% include 'Users/navbars/navbar_user.html' %}
+
+<wrapper class="d-block mx-auto my-5 p-3 w-50" data-bs-theme="dark">
+    {% if chat_group.groupchat_name %}
+    <div class="d-flex justify-content-between">
+        <p class="fs-3 mb-1">{{ chat_group.groupchat_name }}</p>
+        {% if user == chat_group.admin %}
+        <a href="{% url 'edit_chatroom' chat_group.group_name %}"> 
+            <img src="{% static 'Assets/menu.png' %}" alt="menu" class="menu_icon img-fluid">
+        </a>
+
+        {% endif %}
+    </div>
+
+    {% endif %}
+    <div id="chat_window" class=" d-flex flex-column bg-dark rounded-3 shadow-lg position-relative p-1 "
+        style="height: 45rem;">
+        <div class="d-flex justify-content-center text-success bg-dark p-2 sticky-top z-10">
+            {% if other_user %}
+            <div id="online-icon" class="position-absolute top-0 start-0  rounded-circle bg-secondary p-1 mt-2 ms-2">
+            </div>
+            <a href="{% url 'profile_with_username' other_user.username %}" class="text-decoration-none">
+                <div class="d-flex align-items-center gap-2 p-4 sticky-top z-10">
+                    <img class="rounded-circle object-fit-cover mx-2" style="width: 3rem; height: 3rem;"
+                    src="{{ other_user.profile_photo.url }}">
+                    <div>
+                        <span class="fw-bold text-white me-1">{{ other_user.title }} {{ other_user.first_name }} {{other_user.last_name }}</span>
+                        <small><span class=" text-muted">{{ other_user.username }} </span></small>
+                    </div>
+                </div>
+            </a>
+            {% elif chat_group.groupchat_name %}<!--menans it is a group chat-->
+            <!--
+            We want this ul element to be update in realtime with django channels showing the online icon
+            To do this we will use the HTMX partial 
+            -->
+            <ul class="list-unstyled d-flex gap-1" id="groupchat-members">
+                {% for member in chat_group.members.all %}
+                <li>
+                    <a href="{% url 'profile_with_username' member.username %}"
+                        class="text-decoration-none d-flex flex-column text-muted align-items-center justify-content-center gap-1">
+                        <img class="rounded-circle object-fit-cover mx-2" style="width: 3rem; height: 3rem;"
+                        src="{{ member.profile_photo.url }}">
+                        {{ member.username|slice:":10" }} <!--limit to the name -->
+                    </a>
+
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <div id="online-icon"></div>
+            <span id="online-count"></span>online
+            {% endif %}
+        </div>
+        <div id='chat_container' class="overflow-y-auto flex-grow-1">
+            <ul id='chat_messages' class="d-flex flex-column justify-content-end gap-2 p-3 list-unstyled">
+                {% for message in chat_messages reversed %}
+                {% include 'Chat/chat_message.html' %}
+                <!--The chat code is converted into module used here and in partial-->
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="sticky-bottom z-10 p-2 bg-dark">
+            <div class="d-flex align-items-center rounded-pill p-2">
+                <form id="chat_message_form" class="w-100" hx-ext="ws" ws-connect="/ws/chatroom/{{ chatroom_name }}"
+                    ws-send _="on htmx:wsAfterSend reset() me">
+                    <!--Resets the form input field to remove the exisiting msg "_" stands for hyperscript -->
+                    {% csrf_token %}
+                    {{ form }}
+                </form>
+            </div>
+        </div>
+    </div>
+    {% if chat_group.members.exists and request.user != chat_group.admin %}
+    <form method="post" action="{% url 'leave_chatroom' chat_group.group_name %}">
+        {% csrf_token %}
+        
+        <!-- Modal Trigger -->
+        <div class="d-flex justify-content-end">
+          <button type="button" class="btn btn-danger mt-3" data-bs-toggle="modal" data-bs-target="#leave_chatroom">
+            Leave Chat
+          </button>
+        </div>
+      
+        <!-- Modal -->
+        <div class="modal fade" id="leave_chatroom" tabindex="-1" aria-labelledby="leave_chatroomModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="leave_chatroomModalLabel">Leave this chat?</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-footer">
+                <button type="submit" class="btn btn-danger">Yes, I want to leave</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+      
+    {% endif %}
+</wrapper>
+{% endblock %}
+<!--hx-ext we are upgrading to a websocket connnection using it's exitension, ws-send to send the data through form-->
+{% block javascript %}
+<script>
+    function scrollToBottom() {
+        const container = document.getElementById('chat_container')
+        container.scrollTop = container.scrollHeight;
+    }
+
+</script>
+{% endblock %}
+
+
+
+
+<!---
+No reload of the page to add the msg using htmx
+Ordinary form sends a post req adn te page reloads using the view 
+target are the chat-messages
+swap the new msg at the end of the list
+
+
+-->

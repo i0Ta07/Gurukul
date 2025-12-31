@@ -1,0 +1,63 @@
+{% extends 'Users/parent.html' %}
+
+{% load custom_filters %}
+{% block content %}
+
+{% include 'Users/navbars/navbar_user.html' %}
+
+<section class="user-main-container p-5">
+    <div class="mx-3 mt-4">
+        <div class="profile-user">
+            <h2 style="margin-bottom: -15px;" class="fs-1">Assignments</h2>
+            <form class="d-flex" role="search">
+                <input class="form-control me-2" type="search" placeholder="Search assignments" aria-label="Search"
+                    style="width:450px;">
+                <button class="btn btn-outline-success ms-2" type="submit">Search</button>
+            </form>
+        </div>
+    </div>
+    <hr class="custom-border-bottom">
+
+
+    <!-- Assignment Section -->
+
+    
+    <section class="d-flex flex-wrap gap-3 justify-content-start align-items-stretch ms-5 mt-2" data-bs-theme="dark" >
+        {% for assignment in assignments %}
+        <div class="card ms-3 my-3 flex-grow-1" style="min-height: 350px; max-height: 380px; max-width: 380px;">
+            <div class="card-header d-flex justify-content-end">
+                <small class="text-body-secondary"> {{ assignment.updated_at|timesince|days_since }} </small>
+            </div>
+            <div class="card-body d-flex flex-column justify-content-center align-items-center text-center">
+                <h3 class="card-title fw-bolder fs-3 mb-2">{{ assignment.title }}</h3>
+                <p class="card-text fs-5">
+                    {{ assignment.description }}
+                </p>
+                <a href="{% url 'assignment_student' assignment_id=assignment.assignment_id %}" 
+                class="btn btn-primary d-flex justify-content-center">
+                View
+                </a>
+            </div>
+            <div class="card-footer d-flex justify-content-between">
+                <small class="text-body-secondary">
+                    {% with assignment.submissions.all|get_by_user:request.user as user_submission %}
+                        {% if assignment.due_date and not user_submission %}
+                            <small class="text-body-secondary">Due: {{ assignment.due_date|date:"j M Y" }}</small>
+                        {% elif user_submission %}
+                            <small class="text-success">{{ user_submission.submitted_at|date:"j M Y" }}</small>
+                        {% endif %}
+                    {% endwith %}
+                    </small>
+                <small class="text-body-secondary">
+                    {{ assignment.created_by.title }} {{ assignment.created_by.first_name }} {{ assignment.created_by.last_name }}
+                </small>
+            </div>
+        </div>
+        {% endfor %}
+    </section>
+    
+</section>
+
+
+
+{% endblock %}

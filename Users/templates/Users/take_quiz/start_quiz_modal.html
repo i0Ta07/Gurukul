@@ -1,0 +1,64 @@
+{% extends 'Users/parent.html' %}
+{% block content %}
+
+<style>
+    /* Make entire page black when modal is open */
+    body.modal-open {
+        background: black !important;
+        overflow: hidden !important;
+    }
+
+    .modal-backdrop {
+        opacity: 1 !important;
+        /* completely black */
+        background-color: black !important;
+    }
+
+
+
+</style>
+<!--Fullscreen Modal-->
+<div class="modal fade" id="startQuizModal" tabindex="-1" aria-labelledby="startQuizModalLabel" aria-hidden="true"
+    data-bs-theme="dark" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="startQuizModalLabel">Start Quiz</h5>
+            </div>
+            <div class="modal-body">
+                <p>This quiz will enter fullscreen mode and begin the timer.
+                    <br>
+                    Click <b>Start</b> when ready.
+                </p>
+            </div>
+
+            <div class="modal-footer">
+                <!-- <button type="button" class="btn btn-primary" id="startQuizBtn">Start Quiz</button> -->
+                <form id="startQuizForm" action="{% url 'start_quiz' quiz_id=quiz.quiz_id %}" method="get">
+                    <button type="submit" class="btn btn-primary" id="startQuizBtn">Start Quiz</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const modalEl = document.getElementById("startQuizModal");
+        const startBtn = document.getElementById("startQuizBtn");
+
+        const quizModal = new bootstrap.Modal(modalEl, {
+            backdrop: 'static',
+            keyboard: false
+        });
+
+        quizModal.show();
+
+
+    });
+
+</script>
+
+{% endblock %}

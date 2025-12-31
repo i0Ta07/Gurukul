@@ -1,0 +1,159 @@
+{% extends 'Users/parent.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block content %}
+
+{% include 'Users/navbars/navbar_user.html' %}
+
+<div class="container mt-5" data-bs-theme="dark">
+
+    <!-- Display Django Messages -->
+    {% if messages %}
+        <div id="message-container" class="alert alert-success">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="card p-4 ">
+        <div class="position-relative mb-5">
+            <a href="{% url 'user_home' %}" class="btn btn-primary fs-4 position-absolute start-0 top-50 translate-middle-y">
+                Home
+            </a>
+            <div class="text-center">
+                <h2 class="m-0 fs-2">Results</h2>
+                <p class="fs-2">{{ attempt.quiz.name }}</p>
+            </div>
+            
+            
+            {% if attempt.status != 'pending' %}
+            <a href="{% url 'quiz_result' quiz_id=quiz.quiz_id %}" class="btn btn-success fs-4 position-absolute end-0 top-50 translate-middle-y">
+                Analysis
+            </a>
+            {% endif %}
+        </div>        
+        
+        <div class="d-flex justify-content-between ">
+            <div class="d-flex flex-column ">
+                {% if attempt.status != 'pending' %}
+                    <p class="fs-4 mb-1"><strong>Marks Scored:</strong> {{ attempt.marks_scored }} / {{ quiz.max_marks }}</p>
+                    <p class="fs-4 mb-1"><strong>Status:</strong> 
+                        {% if attempt.status == 'passed' %}
+                            <span class="text text-success">
+                                {{ attempt.get_status_display }}
+                            </span>
+                        {% elif attempt.status == 'failed' %}
+                            <span class="text text-danger">
+                                {{ attempt.get_status_display }}
+                            </span>
+                        {% endif %}
+                    </p>
+                {% else %}
+                    <p class="text-warning">Your quiz contains text questions which needs manual evalution. The final score will be available soon enough.</p> 
+                {% endif %}
+            </div>
+            <div class="d-flex flex-column">
+                <p class="fs-4 mb-1"> {{ attempt.completed_at|date:"j M Y, h:i A" }}</p>
+                <p class="fs-4 m-0"><strong>Duration</strong> {{ attempt.duration|floatformat:2 }} seconds</p>
+            </div>
+        </div>
+        
+        <!-- Conditionally Show Feedback Form or Thank You Message -->
+        {% if not feedback_submitted   %}
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group mt-5">
+                <p class="fs-5">To see the review, you have to fill the feedback form</p>
+                <label for="feedback" class="form-label w-75" style="font-family:Verdana, Geneva, Tahoma, sans-serif;">
+                    Your Feedback:
+                </label>                
+                <div class="d-flex align-items-center">
+                    <textarea id="feedback" name="feedback" class="form-control w-75" placeholder="We value your feedback!" rows="2" required></textarea>
+                    <div class="w-25 d-flex flex-column align-items-center">
+                        <div id="star-rating" class="d-flex justify-content-center gap-1" >
+                            <span class="star" data-value="1">&#9733;</span>
+                            <span class="star" data-value="2">&#9733;</span>
+                            <span class="star" data-value="3">&#9733;</span>
+                            <span class="star" data-value="4">&#9733;</span>
+                            <span class="star" data-value="5">&#9733;</span>
+                        </div>
+                        <input type="hidden" name="rating" id="rating-input" >
+                    </div>
+                </div>  
+            </div>
+            <div class="d-flex justify-content-center mt-3">
+                <button type="submit" id="submit-btn" class="btn btn-primary fs-4 px-3 mt-3" disabled>
+                    Submit
+            </button>
+            </div>
+        </form>
+        {% endif %}
+        
+
+       
+        
+       
+        {% if attempt.status != 'pending' %}
+        <div class="stats mt-3 d-flex justify-content-between">
+            <p>Your percentile  = {{ attempt.percentile_weighted_score }}%</p>
+            <p>Your weighted marks = {{ attempt.weighted_score|floatformat:2  }} </p>
+        </div>
+
+            {% if attempt.marks_scored < quiz.max_marks and feedback_submitted %}
+                <div class="d-flex justify-content-center mt-4 mb-3">
+                    <a href="{% url 'quiz_review' attempt_id=attempt.attempt_id %}" class="btn btn-danger ms-2 fs-4">
+                        Review Now
+                    </a>
+                </div>
+            {% endif %}
+        {% endif %}
+
+    </div>
+    
+</div>
+
+<script>
+
+setTimeout(function() {
+        let messageContainer = document.getElementById('message-container');
+        if (messageContainer) {
+            messageContainer.style.transition = "opacity 0.8s ease-in-out";
+            messageContainer.style.opacity = "0";
+            setTimeout(() => messageContainer.remove(), 500); // Remove after fade-out
+        }
+    }, 3000); // Disappears after 3 seconds
+document.addEventListener("DOMContentLoaded", function () {
+    const stars = document.querySelectorAll(".star");
+    const ratingInput = document.getElementById("rating-input");
+    const submitBtn = document.getElementById("submit-btn");
+
+    let selectedRating = 0;
+
+    stars.forEach((star, index) => {
+        star.addEventListener("mouseover", function () {
+            highlightStars(index);
+        });
+
+        star.addEventListener("mouseleave", function () {
+            highlightStars(selectedRating - 1); // Maintain the selected rating
+        });
+
+        star.addEventListener("click", function () {
+            selectedRating = index + 1; // Store the selected rating
+            ratingInput.value = selectedRating;
+            submitBtn.disabled = false; // Enable submit button
+        });
+    });
+
+    function highlightStars(index) {
+        stars.forEach((star, i) => {
+            star.classList.toggle("selected", i <= index);
+        });
+    }
+});
+
+</script>
+
+{% endblock %}

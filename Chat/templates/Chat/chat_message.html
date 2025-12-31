@@ -1,0 +1,36 @@
+{% if message.author == user %}
+<li class="d-flex justify-content-end mb-4">
+    <div class="bg-success rounded-start-1 rounded-end-0 p-3" style="max-width: 75%;">
+        <span>{{message.body}}</span>
+    </div>
+    <div class="d-flex align-items-end">
+        <svg height="13" width="8">
+            <path fill="var(--bs-success)" d="M6.3,10.4C1.5,8.7,0.9,5.5,0,0.2L0,13l5.2,0C7,13,9.6,11.5,6.3,10.4z" />
+        </svg>
+    </div>
+</li>
+{% else %}
+<li>
+    <div class="d-flex justify-content-start">
+        <div class="d-flex align-items-end me-2">
+            <a href="{% url 'profile_with_username' message.author.username %}">
+                <img class="rounded-circle object-fit-cover" style="width: 3rem; height: 3rem;"
+                src="{{ message.author.profile_photo.url }}">
+            </a>
+        </div>
+        <div class="d-flex align-items-end">
+            <svg height="13" width="8">
+                <path fill="var(--bs-primary)" d="M2.8,13L8,13L8,0.2C7.1,5.5,6.5,8.7,1.7,10.4C-1.6,11.5,1,13,2.8,13z">
+                </path>
+            </svg>
+        </div>
+        <div class="p-3 bg-primary rounded-end rounded-top" style="max-width: 75%;">
+            <span>{{message.body}}</span>
+        </div>
+    </div>
+    <div class="small fw-bold py-1 ms-5">
+        <small><span class="text-white">{{message.author.first_name}} {{message.author.last_name}}</span>
+            <span class="text-muted">@{{message.author.username}}</span></small>
+    </div>
+</li>
+{% endif %}

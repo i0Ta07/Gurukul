@@ -1,0 +1,77 @@
+{% extends 'Users/parent.html' %}
+{% load static %}
+<!--html Parent template extended-->
+
+
+<!--block where the content will sit in the main file
+is inside block content and endblock same as in child-->
+{% block content %}
+
+{% include 'Users/navbars/navbar_user.html' %}
+<section class="p-5">
+    <div class="px-3 mt-4">
+        <div class="d-flex justify-content-between">
+            <h2 style="margin-bottom: -15px;" class="fs-1">Your Classes</h2>
+            <form class="d-flex" role="search">
+                <input class="form-control me-2" type="search" placeholder="Search quiz" aria-label="Search"
+                    style="width:450px;">
+                <button class="btn btn-outline-success ms-2" type="submit">Search</button>
+            </form>
+        </div>
+        <hr class="custom-border-bottom">
+    </div>
+
+    <!-- Classes Section -->
+
+    <section class="class d-flex justify-content-start  flex-wrap" data-bs-theme="dark">
+        {% for class in classes %}
+        <div class="main-container" >
+            <div class="card-container">
+                <!--the Front -->
+                <div class="theFront" >
+                    <div class="card ">
+                        <div class="card-header d-flex justify-content-end" >
+                            Students: {{ class.student_count }}
+                        </div>
+                        <div class="card-body d-flex flex-column justify-content-center align-items-center text-center">
+                            <h5 class="card-title fw-bolder fs-3 mb-2">{{ class.name }}</h5>
+                            <p class="card-text">
+                                Topic: {{ class.current_topic }}<br>
+                                Next Class: {{ class.next_class_date|date:"j M Y" }}<br>
+                                {{ class.next_class_date|time:"h:i A" }}
+                            </p>
+                        </div>
+                        <div class="card-footer">
+                            {{ class.created_by.title }} {{ class.created_by.first_name }} {{ class.created_by.last_name}}
+                        </div>
+                    </div>
+                </div>
+                <!--the back-->
+                <div class="theBack">
+                    <div class="card">
+                        <div class="card-header ">
+                            Students: {{ class.students.count }}
+                        </div>
+                        <div class="card-body d-flex flex-column justify-content-center align-items-center text-center">
+                            <p>
+                                <span class="fw-bold fs-5">{{ class.description }}</span><br>
+                                Next Topic: {{ class.next_topic }} <br>
+                                Last Topic: {{ class.last_topic }}
+                            </p>
+                            <a href="{% url 'class_home' class_id=class.class_id %}"
+                                class="btn btn-primary d-flex justify-content-center mx-auto">
+                                View Class
+                            </a>
+                        </div>
+                        <div class="card-footer  d-flex justify-content-end">
+                            {{ class.created_by.title }} {{ class.created_by.first_name }} {{ class.created_by.last_name}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </section>
+</section>
+
+{% endblock %}

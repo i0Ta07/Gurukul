@@ -1,0 +1,472 @@
+@font-face {
+    font-family: 'Futura';
+    src: url(Fonts/Futura.ttf) format('truetype');
+}
+
+@font-face {
+    font-family: 'Klavika';
+    src: url(Fonts/klavika-bold.otf) format('opentype');
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    color: white;
+}
+
+.blur-content {
+    filter: blur(25px);
+    pointer-events: none; /* prevent clicking behind modal */
+    user-select: none;
+}
+.no-select {
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none;    /* Firefox */
+    -ms-user-select: none;     /* IE10+ */
+    user-select: none;         /* Standard */
+}
+
+p {
+    font-size: 20px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif
+}
+
+h2 {
+    font-family: 'Futura';
+}
+
+body {
+    background-color: #000000;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    overflow-x: hidden;
+}
+
+header {
+    background-color: #5be81a;
+    color: white;
+    padding: 20px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header h1 {
+    margin: 0;
+}
+
+nav ul {
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    list-style: none;
+    font-size: 18px;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+
+
+nav ul li {
+    margin: 0 15px;
+
+}
+
+nav ul li a {
+    color: white;
+    font-size: 18px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.search-bar {
+    padding: 20px;
+    text-align: center;
+    margin-top: 30px;
+}
+
+.search-bar input[type="text"] {
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    padding: 10px;
+    width: 60%;
+    border-radius: 5px;
+    color: rgb(0, 0, 0);
+    background-color: rgb(229, 228, 226);
+    border: 5px solid #000000;
+    border-radius: 100px;
+
+}
+
+.search-bar button {
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    padding: 10px 15px;
+    color: green;
+    background-color: rgb(0, 0, 0);
+    border-radius: 50px;
+    cursor: pointer;
+    border: 1px solid green;
+    font-size: 18px;
+}
+
+.container-outside {
+    display: grid;
+    margin-top: 100px;
+}
+
+.container-inside {
+    display: inline-flex;
+}
+
+.inside-block {
+    width: 500px;
+    height: 300px;
+    padding: 50px;
+    margin: 25px;
+    border-radius: 25px;
+    box-shadow: 0 4px 8px rgba(233, 125, 197, 0.6);
+    border: 2px solid rgba(233, 125, 197, 0.7);
+}
+
+.inside-block-img {
+    scale: 120%;
+    max-width: 300px;
+    max-height: 300px;
+}
+
+footer {
+    background-color: #000000;
+    color: rgb(0, 0, 0);
+    text-align: center;
+    padding: 10px 0;
+    margin-top: 50px;
+}
+
+body hr {
+    border-bottom: 2px solid rgb(229, 228, 226);
+    opacity: 50%;
+
+}
+
+.custom-border-bottom {
+    opacity: 50%;
+    border-bottom: 2px solid rgb(229, 228, 226);
+}
+
+footer ul {
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    font-size: 20px;
+    display: inline-flex;
+    justify-content: space-evenly;
+}
+
+footer ul li a {
+    margin-right: 20px;
+    margin-left: 20px;
+
+}
+
+footer p {
+    font-family: 'Klavika';
+    margin-top: 5px;
+    font-size: 30px;
+}
+
+.nav-link {
+    color: white;
+    transition: color 0.5s ease;
+
+}
+
+.nav-link:hover {
+    color: green;
+}
+
+.brand-name {
+    font-family: 'Klavika';
+    font-size: 30px;
+    margin: 5px;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    background-color: black;
+    transition: background-color 0.3s ease;
+    transform-origin: center;
+}
+
+.brand-name:hover {
+    background-color: rgb(255, 255, 255);
+    color: black;
+    transform: scaleX(1.05);
+    padding: 5px;
+    transform-origin: center;
+
+
+}
+
+input::placeholder {
+    color: rgba(54, 69, 79, 0.73);
+    /* Replace with the desired color */
+    font-family: 'Klavika';
+    font-size: 20px;
+}
+
+
+/* starting User CSS*/
+
+.user-main-container {
+    display: flow-root;
+    justify-content: space-evenly;
+    color: white;
+
+}
+
+.user-hp {
+    display: block;
+    justify-content: space-evenly;
+}
+
+.user-hp h2 {
+    font-family: 'Klavika';
+    font-size: 30px;
+    margin-left: 30px;
+    margin-bottom: -10px;
+
+}
+
+.user-hp h3 {
+    font-size: 28px;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+.user-hp p {
+    font-size: 20px;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+.user-inside-block {
+    background-color: rgb(0, 0, 0);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(207, 159, 255, 0.4);
+    border: 2px solid rgba(207, 159, 255, 0.6);
+    margin-bottom: 15px;
+    margin: 25px;
+}
+
+.profile-user {
+    display: flex;
+    justify-content: space-between;
+
+}
+
+.profile_icon {
+    height: 50px;
+    width: 50px;
+    scale: 200%;
+}
+
+.menu_icon {
+    height: 50px;
+    width: 50px;
+    scale: 100%
+}
+
+
+
+.tab {
+    display: inline-block;
+    margin-left: 50px;
+}
+
+/* 
+button, input[type="submit"], input[type="button"], 
+button:hover, input[type="submit"]:hover, input[type="button"]:hover,
+*/
+.btn{
+    font-size: 20px;
+    padding: 6px 18px;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    border-radius: 10px;
+    height: auto; /* optional */
+    white-space: nowrap; /* optional: prevents text wrap */
+
+}
+
+.btn:hover {
+    transform: scale(1.05);
+}
+
+.btn:active {
+    transform: scale(0.95);
+}
+.disabled-button {
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+.marquee-container {
+    overflow: hidden;
+}
+
+.marquee-text {
+    display: inline-block;
+    animation: marquee-vertical 15s linear infinite;
+}
+
+.marquee-text {
+    animation-play-state: running;
+}
+
+.marquee-container:hover .marquee-text {
+    animation-play-state: paused;
+}
+
+@keyframes marquee-vertical {
+    from {
+        transform: translateY(100%);
+    }
+
+    to {
+        transform: translateY(-100%);
+    }
+}
+
+.priority-high {
+    color: #FF828B;
+
+}
+
+.priority-normal {
+    color: #CFF800;
+}
+
+.priority-low {
+    color: #FFA23A;
+}
+
+.notes .card{
+    height: 380px;
+    width: 350px;
+}
+
+.notes .main-container {
+    position: relative;
+    height: 380px;
+    width: 350px;
+    margin-right: 20px;
+}
+.class .main-container {
+    position: relative;
+    height: 350px;
+    width: 320px;
+    margin-right: 20px;
+    margin-bottom: 20px;
+}
+
+.class .card{
+    height: 350px;
+    width: 320px;
+    margin-right: 20px;
+    margin-bottom: 20px;
+}
+
+
+.question-btn.disabled {
+    pointer-events: none; /* Prevent clicking */
+    opacity: 1;/* Ensure opacity remains 100% */
+}
+
+
+
+.card-container {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    transform-style: preserve-3d;
+    transition: all 0.5s ease;
+}
+
+.card-container:hover {
+    transform: rotateY(180deg);
+}
+
+.theFront {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    backface-visibility: hidden;
+}
+
+.theBack {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    backface-visibility: hidden;
+    transform: rotateY(180deg);
+}
+
+.form-label {
+    font-family:Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.form-control {
+    font-family:Verdana, Geneva, Tahoma, sans-serif;
+}
+.col-form-label {
+    font-family:Verdana, Geneva, Tahoma, sans-serif;
+}
+
+#star-rating {
+    font-size: 30px;
+    color: lightgray;
+    cursor: pointer;
+}
+#star-rating {
+    font-size: 30px;
+    color: lightgray;
+    cursor: pointer;
+}
+
+.star {
+    display: inline-block;
+    transition: color 0.3s;
+}
+
+.star.selected {
+    color: gold;
+}
+
+.dark-charfield {
+    background-color: black;
+    color: white;  
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 20px;
+    width: 100%;
+
+}
+
+.dark-charfield:focus {
+    border: 1px solid rgba(233, 125, 197, 0.7);
+    outline: none;
+}
+
+.question-text {
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    font-size: 30px; 
+    font-weight: 600; 
+    color: white; 
+}
+
+.question-image {
+    max-width: auto;
+    height: auto;
+    border-radius: 8px;
+    margin-block: 10px;
+}
+
+.table{
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif ;
+
+}
